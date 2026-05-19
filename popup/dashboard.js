@@ -279,10 +279,10 @@ export function applyValidatorData(result, state) {
     // The HF section below is the only capacity surface that maps to a real
     // validator-enforced limit.
 
-    // ── Trading Capacity (Hyperscaled) — validator-enforced caps ────────────
-    // Caps and filled exposure need only the live HS balance (capsAvailable);
-    // pending projections additionally need the HS÷HL ratio (hsAvailable).
-    // Missing inputs render "--" rather than a misleading $0.00.
+    // ── Trading Capacity (HyperFunded) — validator-enforced caps ────────────
+    // Every $ figure in this section depends on mirrorRatio. When it is 0
+    // (accountBalance unavailable) we cannot compute honest HS values, so
+    // render "--" rather than a misleading $0.00.
     const r = mirrorRatio;
     const hsAvailable = r > 0;
     const capsAvailable = Number(accountBalance) > 0;

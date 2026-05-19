@@ -48,7 +48,7 @@ export function showEventNotification(evt) {
     message += `\nFill: ${evt.fill_hash.slice(0, 10)}...`;
   }
 
-  chrome.notifications.create(`hyperstack-event-${evt.timestamp_ms}`, {
+  chrome.notifications.create(`hyperfunded-event-${evt.timestamp_ms}`, {
     type: 'basic',
     iconUrl: 'icon128.png',
     title,
