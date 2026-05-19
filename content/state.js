@@ -52,7 +52,7 @@
     //   side:     'long' | 'short'
     // Populated by fetchValidatorData when both validator positions and
     // midPrices are available. Empty until then.
-    hsPositionsByCoin: {},
+    hfPositionsByCoin: {},
     inChallenge: false,
     isRegistered: false,
     registrationChecked: false,

@@ -195,7 +195,7 @@ export function buildHlCoinToDisplay(tradePairsResponse) {
 // Diff #2/#3 (2026-05): caps moved to the HF side. The validator returns
 // USD figures in starting-account-size scale (e.g. $5,000 / $20,000 on a
 // $10,000 funded account). We derive the static ratio (pair_usd / fundedSize)
-// and apply it to the live HS balance, so caps track realised PnL.
+// and apply it to the live HF balance, so caps track realised PnL.
 //
 //   maxPositionPerPair = (pair_usd       / fundedSize) × accountBalance
 //   maxPortfolio       = (portfolio_usd  / fundedSize) × accountBalance

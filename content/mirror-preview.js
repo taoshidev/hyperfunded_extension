@@ -21,7 +21,7 @@
           '<span class="hf-mp-val" id="hf-mp-hl-val">--</span>' +
         '</div>' +
         '<div class="hf-mp-row hf-mp-row--mirror" id="hf-mp-mirror-row">' +
-          '<span class="hf-mp-label">Mirrors to HS</span>' +
+          '<span class="hf-mp-label">Mirrors to HF</span>' +
           '<span class="hf-mp-val-group">' +
             '<span class="hf-mp-val hf-mp-val--accent" id="hf-mp-hs-val">--</span>' +
             '<span class="hf-mp-ratio" id="hf-mp-ratio"></span>' +
@@ -31,7 +31,7 @@
       '<div class="hf-mp-warning" id="hf-mp-warning" style="display:none"></div>' +
       '<div class="hf-mp-capacity" id="hf-mp-pair-section">' +
         '<div class="hf-mp-cap-header">' +
-          '<span class="hf-mp-cap-title" id="hf-mp-pair-title">HS PAIR LIMIT</span>' +
+          '<span class="hf-mp-cap-title" id="hf-mp-pair-title">HF PAIR LIMIT</span>' +
           '<span class="hf-mp-cap-pct" id="hf-mp-pair-pct">--</span>' +
         '</div>' +
         '<div class="hf-mp-bar">' +
@@ -53,7 +53,7 @@
       '</div>' +
       '<div class="hf-mp-capacity">' +
         '<div class="hf-mp-cap-header">' +
-          '<span class="hf-mp-cap-title">HS PORTFOLIO</span>' +
+          '<span class="hf-mp-cap-title">HF PORTFOLIO</span>' +
           '<span class="hf-mp-cap-pct" id="hf-mp-cap-pct">--</span>' +
         '</div>' +
         '<div class="hf-mp-bar">' +
@@ -343,7 +343,7 @@
       const anyCapBinds = pairCapBinds || classCapBinds || portCapBinds;
 
       if (stillOver) {
-        lines.push('After this reduction, HL pair would still exceed the cap. HS stays at <b>' + fmt(pairMax) + '</b> — none of this order mirrors until HL drops below the cap.');
+        lines.push('After this reduction, HL pair would still exceed the cap. HF stays at <b>' + fmt(pairMax) + '</b> — none of this order mirrors until HL drops below the cap.');
         lines.push('HL trading is unaffected.');
       } else if ((branch === 'new' || branch === 'add') && anyCapBinds) {
         if (mirrorsTo < 0.01) {
@@ -400,7 +400,7 @@
     // get an arrow. Detail line shows transition $-amounts.
     const pairTitle = el.querySelector('#hf-mp-pair-title');
     if (pairTitle) {
-      let titleText = 'HS ' + (formatPairLabel(symbol) || 'PAIR') + ' LIMIT';
+      let titleText = 'HF ' + (formatPairLabel(symbol) || 'PAIR') + ' LIMIT';
       if (branch === 'flip' && currentSide && flippedSide) {
         titleText += ' · ' + currentSide.toUpperCase() + ' → ' + flippedSide.toUpperCase();
       } else if (branch === 'reduce' && !flippedSide) {

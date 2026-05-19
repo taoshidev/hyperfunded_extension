@@ -263,17 +263,17 @@ describe('evaluateOversizeState — HL × mirror vs HF caps', () => {
 // ─── getMirrorMultiplier (live accountBalance / hlBalance) ───────────────────
 
 describe('getMirrorMultiplier — live accountBalance / hlBalance', () => {
-  it('flat PnL: $1,372 HL, $10,000 HS balance → ratio ≈ 7.29', () => {
+  it('flat PnL: $1,372 HL, $10,000 HF balance → ratio ≈ 7.29', () => {
     expect(getMirrorMultiplier(1372, 10000)).toBeCloseTo(7.29, 1);
   });
 
-  it('post-drawdown: HS balance dropped 10% → ratio drops correspondingly', () => {
+  it('post-drawdown: HF balance dropped 10% → ratio drops correspondingly', () => {
     // Funded $10k, balance $9k after 10% loss. HL still at $1372.
     // Multiplier = 9000/1372 ≈ 6.56 (used to be 7.29 with frozen fundedSize).
     expect(getMirrorMultiplier(1372, 9000)).toBeCloseTo(6.56, 1);
   });
 
-  it('post-profit: HS balance grew 10% → ratio rises correspondingly', () => {
+  it('post-profit: HF balance grew 10% → ratio rises correspondingly', () => {
     expect(getMirrorMultiplier(1372, 11000)).toBeCloseTo(8.02, 1);
   });
 
@@ -299,11 +299,11 @@ describe('getMirrorMultiplier — live accountBalance / hlBalance', () => {
     expect(getMirrorMultiplier(1372, NaN)).toBe(0);
   });
 
-  it('ratio < 1 when HL larger than HS balance (atypical)', () => {
+  it('ratio < 1 when HL larger than HF balance (atypical)', () => {
     expect(getMirrorMultiplier(10000, 5000)).toBe(0.5);
   });
 
-  it('large ratio for $100k HS account', () => {
+  it('large ratio for $100k HF account', () => {
     expect(getMirrorMultiplier(1372, 100000)).toBeCloseTo(72.9, 0);
   });
 

@@ -175,13 +175,13 @@
             <div class="capacity-header">
                 <span class="capacity-title">Leverage &amp; Buying Power <button class="info-toggle" aria-expanded="false" data-info="tradingCapacity"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4M8 5.5v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></span>
             </div>
-            <div class="info-expand" id="info-tradingCapacity" hidden>Validator-enforced leverage limits on your HF account. Per-pair, asset-class and portfolio limits are fixed leverage ratios applied to your live HF balance. Trading on Hyperliquid itself is never restricted by these limits — any portion of a fill that would exceed them simply isn't mirrored to your HF account.
-                <span class="info-expand-item"><strong>Per Pair Limit</strong> — Maximum notional in any single pair. Each pair has its own leverage ratio (&times; your live HF balance), so the cap differs pair to pair — the active pair's limit is shown in the order-entry preview on Hyperliquid.</span>
-                <span class="info-expand-item"><strong>Asset Class Limit</strong> — Maximum combined notional across all pairs in one asset class (crypto, equities, indices, commodities). Calculated as the validator's per-class leverage ratio &times; your live HF balance.</span>
-                <span class="info-expand-item"><strong>Portfolio Limit</strong> — Maximum aggregate notional across all open positions on your HF account. Calculated as the validator's portfolio leverage ratio &times; your live HF balance.</span>
+            <div class="info-expand" id="info-tradingCapacity" hidden>Validator-enforced leverage limits on your HS account. Per-pair, asset-class and portfolio limits are fixed leverage ratios applied to your live HS balance. Trading on Hyperliquid itself is never restricted by these limits — any portion of a fill that would exceed them simply isn't mirrored to your HS account.
+                <span class="info-expand-item"><strong>Per Pair Limit</strong> — Maximum notional in any single pair. Each pair has its own leverage ratio (&times; your live HS balance), so the cap differs pair to pair — the active pair's limit is shown in the order-entry preview on Hyperliquid.</span>
+                <span class="info-expand-item"><strong>Asset Class Limit</strong> — Maximum combined notional across all pairs in one asset class (crypto, equities, indices, commodities). Calculated as the validator's per-class leverage ratio &times; your live HS balance.</span>
+                <span class="info-expand-item"><strong>Portfolio Limit</strong> — Maximum aggregate notional across all open positions on your HS account. Calculated as the validator's portfolio leverage ratio &times; your live HS balance.</span>
             </div>
             <div class="capacity-basis-note">
-                Scaling ratio: HF balance <span id="hsBasisValue">--</span> &divide; HL equity <span id="hsBasisHlEquity">--</span> = <span id="hsBasisRatio">--</span>
+                Scaling ratio: HS balance <span id="hsBasisValue">--</span> &divide; HL equity <span id="hsBasisHlEquity">--</span> = <span id="hsBasisRatio">--</span>
             </div>
             <div class="capacity-row" id="hsClassRow" style="display: none;">
                 <div class="capacity-row-header">

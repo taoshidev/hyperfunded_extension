@@ -149,13 +149,13 @@ Layered surfaces create depth without heavy shadows. Use the lowest opacity that
 
 | Token | Value | Use when |
 |-------|-------|----------|
-| `--card-bg` | 3% white | Primary/elevated card only (HS Account, Position cards) |
+| `--card-bg` | 3% white | Primary/elevated card only (HF Account, Position cards) |
 | `--card-bg-subtle` | 2% white | Setup/config cards (wallet config form) |
 | `--border-card` | 6% white | Standard card border |
 | `--border-outer` | 8% white | Container border, stronger dividers |
 | `--bar-bg` | 6% white | Progress bar tracks |
 
-**Card usage rule:** Use cards for: HS Account balance card, HL Account balance card (2-column grid), Position cards (grouped interactive data), Next Payout card (navigational destination), Analytics link (navigational destination), Wallet Config form (first-run setup). Everything else — Leverage & Buying Power, Challenge Progress, Drawdown — breathes directly on the background.
+**Card usage rule:** Use cards for: HF Account balance card, HL Account balance card (2-column grid), Position cards (grouped interactive data), Next Payout card (navigational destination), Analytics link (navigational destination), Wallet Config form (first-run setup). Everything else — Leverage & Buying Power, Challenge Progress, Drawdown — breathes directly on the background.
 
 **Never** add box-shadows to cards — depth comes from opacity layering only.
 
@@ -436,26 +436,26 @@ The dashboard **Order Events** section shows validator order activity. When ther
 
 ## Leverage & Buying Power — Hyperstack-Side Block
 
-A single block showing the validator-enforced leverage limits on the funded HS account. HL has no per-pair or portfolio limit (orders pass through unchanged), so a separate HL block was removed — a bar with no real ceiling was misleading. HL exposure data is still available on HL's own UI and in the injected mirror preview at order entry.
+A single block showing the validator-enforced leverage limits on the funded HF account. HL has no per-pair or portfolio limit (orders pass through unchanged), so a separate HL block was removed — a bar with no real ceiling was misleading. HL exposure data is still available on HL's own UI and in the injected mirror preview at order entry.
 
 | Element | Treatment |
 |---------|-----------|
 | Block class | `.capacity-block .capacity-block--hs` |
 | Title | `Leverage & Buying Power` |
-| Basis note | `10px`, `--font-ui`, `--text-faint` — `Scaling ratio: HS balance $X ÷ HL equity $Y = Zx` (no trailing "HL trading is unrestricted" — that meaning lives in the info-expand instead) |
+| Basis note | `10px`, `--font-ui`, `--text-faint` — `Scaling ratio: HF balance $X ÷ HL equity $Y = Zx` (no trailing "HL trading is unrestricted" — that meaning lives in the info-expand instead) |
 | Basis values | `--font-mono`, `--text-body` — inline monospace for dollar amounts and ratios |
 | Bar fill (filled) | DD severity scale via JS — teal `#97FCE4` < 70%, amber `#ffb900` 70–90%, red `rgb(239,68,68)` ≥ 90% or breached. Same `capColor()` thresholds as banner DD and the mirror preview |
 | Bar overlay (pending) | 45° striped gradient in the severity color of the after-fill % — pending = "would-be exposure if these limits fill", not real exposure, so it stays striped |
 | Bar track | `--bar-bg` (neutral white at 6%) |
 | Pending text color | Severity color of after-fill % — matches the stripe color, set inline by JS |
 
-**Rule:** The basis note shows the scaling ratio explicitly as a formula (`HS balance ÷ HL equity = ratio`) rather than a single derived number. Surfacing the inputs lets the trader sanity-check the ratio against their own equity readings.
+**Rule:** The basis note shows the scaling ratio explicitly as a formula (`HF balance ÷ HL equity = ratio`) rather than a single derived number. Surfacing the inputs lets the trader sanity-check the ratio against their own equity readings.
 
 **Rule:** The phrase "HL trading is unrestricted" replaces the older "no HL-side cap". The trader needs to know HL orders won't be blocked at the exchange — the validator only enforces caps on the HF mirror at fill time.
 
 **Rule:** Two rows: **Per Pair Limit** (validator's per-pair cap) and **Portfolio Limit** (validator's portfolio cap). Both are HF-scale.
 
-**Rule:** Bars consume `hsPositionsByCoin` (validator's authoritative size × price) for filled exposure and HL's resting-order notional × mirror ratio for the pending overlay. The validator records pending only at fill time, so projected pending must come from HL clearinghouse.
+**Rule:** Bars consume `hfPositionsByCoin` (validator's authoritative size × price) for filled exposure and HL's resting-order notional × mirror ratio for the pending overlay. The validator records pending only at fill time, so projected pending must come from HL clearinghouse.
 
 **Rule:** Pending is projected against current SIGNED exposure using the same `add | reduce | flip | new` branch logic as the injected mirror preview (`content/mirror-preview.js`). Background's `extractPendingBuyNotional` only emits buy-side resting orders, so a buy pending against a short position must be treated as **reduce** (or **flip** if larger), never as additive exposure. Per-pair after-magnitude is `|currentSigned + pendingBuy|`, then clamped by `pair_cap`, `class_room`, and `portfolio_room`. The per-class and total rows aggregate per-pair after-magnitudes (each clamped at its own cap) — never the raw sum of pending notional.
 
@@ -474,7 +474,7 @@ A single block showing the validator-enforced leverage limits on the funded HS a
 
 ## Mirror Preview Card (Content Script)
 
-A floating card that appears below the order size input on the Hyperliquid trading page. Shows the HL order notional, mirrored amount on the HS account, and a capacity impact bar.
+A floating card that appears below the order size input on the Hyperliquid trading page. Shows the HL order notional, mirrored amount on the HF account, and a capacity impact bar.
 
 | Property | Value |
 |----------|-------|

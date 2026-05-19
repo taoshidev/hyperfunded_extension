@@ -293,7 +293,7 @@ Never show the full wallet-config card when an address is already saved. `showWa
 ## Accent Card Block
 
 Card treatment is **reserved** for:
-- HS Account balance card (primary KPI — the one number that matters most)
+- HF Account balance card (primary KPI — the one number that matters most)
 - Position cards (grouped interactive data)
 - Wallet Config form (setup UI, first-run only)
 
@@ -316,7 +316,7 @@ Everything else — Leverage & Buying Power, Challenge Progress, Drawdown, HL Ac
 
 ### Variants
 
-**Primary card** (stronger surface — used by HS Account balance card):
+**Primary card** (stronger surface — used by HF Account balance card):
 ```css
 background: var(--card-bg);
 border-color: rgba(255,255,255,0.1);
@@ -397,14 +397,14 @@ Hover reveals a teal border as the only accent signal — confirming interactivi
 
 ## Balance Grid
 
-A 2-column grid displaying the HS Account and HL Account as separate cards. Each card is a label/value/sublabel stack.
+A 2-column grid displaying the HF Account and HL Account as separate cards. Each card is a label/value/sublabel stack.
 
 ### HTML structure
 
 ```html
 <div class="balance-grid">
     <div class="balance-card">
-        <div class="balance-label">HS Account</div>
+        <div class="balance-label">HF Account</div>
         <div class="balance-value"><span id="fundedBalance">--</span></div>
         <div class="balance-change positive"><span id="fundedChange">--</span></div>
     </div>
@@ -441,7 +441,7 @@ A vertically stacked label-above-value pattern used wherever data is displayed: 
 
 ```html
 <!-- Balance card -->
-<div class="balance-label">HS Account</div>
+<div class="balance-label">HF Account</div>
 <div class="balance-value">$106,456.78</div>
 <div class="balance-change positive">+$6,456.78 (6.45%)</div>
 

@@ -91,7 +91,7 @@ export function applyValidatorData(result, state) {
 
     const accountSizeData = result.account_size_data;
 
-    // Live HS balance (drawdown-adjusted) — base for limits and mirror sizing.
+    // Live HF balance (drawdown-adjusted) — base for limits and mirror sizing.
     // When the validator hasn't returned it we show "--" downstream rather
     // than fall back to accountSize, which is frozen at the funded amount and
     // would silently produce wrong limit/PnL numbers after any P&L.
@@ -281,7 +281,7 @@ export function applyValidatorData(result, state) {
 
     // ── Trading Capacity (HyperFunded) — validator-enforced caps ────────────
     // Every $ figure in this section depends on mirrorRatio. When it is 0
-    // (accountBalance unavailable) we cannot compute honest HS values, so
+    // (accountBalance unavailable) we cannot compute honest HF values, so
     // render "--" rather than a misleading $0.00.
     const r = mirrorRatio;
     const hsAvailable = r > 0;
