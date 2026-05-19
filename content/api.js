@@ -62,7 +62,7 @@
         const detected = detectAddressFromPage();
         if (detected) {
           const normalizedDetected = detected.toLowerCase();
-          console.log("[Hyperscaled] Auto-detected address from page:", normalizedDetected);
+          console.log("[HyperFunded] Auto-detected address from page:", normalizedDetected);
           chrome.storage.local.set({ hlAddress: normalizedDetected });
           resolve(normalizedDetected);
         } else {
@@ -115,7 +115,7 @@
       if (HF.mirrorPreview) HF.mirrorPreview.refreshIfVisible();
       HF.toast?.evaluateOversizeState?.();
     } catch (e) {
-      console.error("[Hyperscaled] Trader limits fetch failed:", e);
+      console.error("[HyperFunded] Trader limits fetch failed:", e);
     }
   }
 
@@ -148,12 +148,12 @@
           }
         });
         HF.state.SUPPORTED_SYMBOLS = [...symbols];
-        console.log("[Hyperscaled] Loaded", pairs.length, "HL-supported pairs from validator");
+        console.log("[HyperFunded] Loaded", pairs.length, "HL-supported pairs from validator");
       }
       HF.state.pairsLoaded = true;
       HF.pairSupport.checkPairSupport(true);
     } catch (e) {
-      console.error("[Hyperscaled] Trade pairs fetch failed, using defaults:", e);
+      console.error("[HyperFunded] Trade pairs fetch failed, using defaults:", e);
       HF.state.pairsLoaded = true;
       HF.pairSupport.checkPairSupport(true);
     }
@@ -169,7 +169,7 @@
         }
       }
     } catch (e) {
-      console.error('[Hyperscaled] Mid prices fetch failed:', e);
+      console.error('[HyperFunded] Mid prices fetch failed:', e);
     }
   }
 
@@ -197,7 +197,7 @@
 
       const positionsRaw = result.positions;
       const positions = Array.isArray(positionsRaw) ? positionsRaw : (positionsRaw?.positions || []);
-      console.log("[Hyperscaled] Validator data loaded, account_size:", ACCOUNT.fundedSize, "positions total:", positions.length);
+      console.log("[HyperFunded] Validator data loaded, account_size:", ACCOUNT.fundedSize, "positions total:", positions.length);
 
       // Note: the validator's per-position payload (`net_leverage`,
       // `current_return`) is intentionally NOT used to derive notional or
@@ -248,7 +248,7 @@
       HF.banner.updateBannerFromValidator();
       HF.toast?.evaluateOversizeState?.();
     } catch (e) {
-      console.error("[Hyperscaled] Validator fetch failed:", e);
+      console.error("[HyperFunded] Validator fetch failed:", e);
       if (e.message.toLowerCase().includes("unregistered")) {
         sessionStorage.setItem("hf_pending_registration", "true");
         HF.payment.processRegistrationPayment();
@@ -258,9 +258,9 @@
 
   async function checkBalance(overrideAddress = null) {
     const address = overrideAddress || await getUserAddress();
-    console.log("[Hyperscaled] checkBalance address:", address);
+    console.log("[HyperFunded] checkBalance address:", address);
     if (!address) {
-      console.warn("[Hyperscaled] No address found");
+      console.warn("[HyperFunded] No address found");
       HF.state.balanceVerified = false;
       return;
     }
@@ -268,7 +268,7 @@
     try {
       const result = await sendToBackground({ action: "fetchBalance", address });
 
-      console.log("[Hyperscaled] Balance result:", result);
+      console.log("[HyperFunded] Balance result:", result);
       HF.state.currentBalance = Number(result.accountValue) || 0;
       ACCOUNT.hlBalance = HF.state.currentBalance;
       ACCOUNT.hlEquity = HF.state.currentBalance;
@@ -323,7 +323,7 @@
       HF.inputBinding.scheduleUpdate();
       HF.toast?.evaluateOversizeState?.();
     } catch (e) {
-      console.error("[Hyperscaled] Balance check failed:", e);
+      console.error("[HyperFunded] Balance check failed:", e);
     }
   }
 

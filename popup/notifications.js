@@ -107,7 +107,7 @@ export async function showPositionNotification() {
     console.log('Creating notification with chrome.notifications API:', notificationOptions);
 
     if (chrome.notifications) {
-        chrome.notifications.create('hyperscaled-position-' + Date.now(), notificationOptions, (notificationId) => {
+        chrome.notifications.create('hyperfunded-position-' + Date.now(), notificationOptions, (notificationId) => {
             if (chrome.runtime.lastError) {
                 console.error('Chrome notifications error:', chrome.runtime.lastError);
                 updateStatus('Chrome API error: ' + chrome.runtime.lastError.message, 'error');
@@ -133,7 +133,7 @@ export async function showPositionNotification() {
 export function setupNotificationClickHandler() {
     if (chrome.notifications) {
         chrome.notifications.onClicked.addListener((notificationId) => {
-            if (notificationId.startsWith('hyperscaled-position')) {
+            if (notificationId.startsWith('hyperfunded-position')) {
                 chrome.tabs.create({ url: getHlAppUrl() });
             }
         });

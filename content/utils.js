@@ -482,7 +482,7 @@
 
   function clampDebug(event, details = {}) {
     if (!CLAMP_DEBUG) return;
-    console.log("[Hyperscaled][ClampDebug]", event, details);
+    console.log("[HyperFunded][ClampDebug]", event, details);
   }
 
   function describeInput(input) {

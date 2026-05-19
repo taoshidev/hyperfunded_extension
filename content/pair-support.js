@@ -33,7 +33,7 @@
         <span class="hf-unsupported-icon">\u26a0\ufe0f</span>
         <span class="hf-unsupported-title">Unsupported Pair</span>
         <span class="hf-unsupported-msg">
-          <b>${displayName}-USDC</b> is not supported by Hyperscaled.<br>
+          <b>${displayName}-USDC</b> is not supported by HyperFunded.<br>
           Supported pairs: <b>${supportedList}</b>
         </span>
       </div>

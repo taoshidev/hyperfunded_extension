@@ -1,8 +1,8 @@
 /**
- * Hyperscaled Extension — Browser Test Harness
+ * HyperFunded Extension — Browser Test Harness
  *
  * Paste this entire script into the DevTools console on app.hyperliquid.xyz
- * (or testnet equivalent) while the Hyperscaled extension is loaded and logged in.
+ * (or testnet equivalent) while the HyperFunded extension is loaded and logged in.
  *
  * SAFE: Does NOT click trade buttons or submit orders. Tests the extension's
  * gate/blocking logic by manipulating HF state and checking DOM results.
@@ -35,7 +35,7 @@
 
   // ── Guard ──────────────────────────────────────────────────────────────────
   if (!window.__HF) {
-    console.error('[HF Test] window.__HF not found. Load Hyperscaled extension first.');
+    console.error('[HF Test] window.__HF not found. Load HyperFunded extension first.');
     return;
   }
   const HF = window.__HF;
@@ -82,7 +82,7 @@
 
   // ── Full test runner ───────────────────────────────────────────────────────
   async function runAll() {
-    console.log('%c\n═══════════════════════════════════════════════════\n  Hyperscaled Extension — Comprehensive Test Suite\n═══════════════════════════════════════════════════\n', 'color:#6466f1;font-weight:bold;font-size:14px');
+    console.log('%c\n═══════════════════════════════════════════════════\n  HyperFunded Extension — Comprehensive Test Suite\n═══════════════════════════════════════════════════\n', 'color:#6466f1;font-weight:bold;font-size:14px');
 
     const accountSnap = snapshotAccount();
     const stateSnap = snapshotState();

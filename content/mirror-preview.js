@@ -128,7 +128,7 @@
   }
 
   function showMirrorPreview(input) {
-    console.log('[Hyperscaled][MirrorPreview] showMirrorPreview called', {
+    console.log('[HyperFunded][MirrorPreview] showMirrorPreview called', {
       isRegistered: ACCOUNT.isRegistered,
       registrationChecked: ACCOUNT.registrationChecked,
       hlBalance: ACCOUNT.hlBalance,
@@ -138,7 +138,7 @@
     });
 
     if (!ACCOUNT.isRegistered) {
-      console.log('[Hyperscaled][MirrorPreview] Skipped: not registered');
+      console.log('[HyperFunded][MirrorPreview] Skipped: not registered');
       return;
     }
 
@@ -170,12 +170,12 @@
       if (notional <= 0) notional = HF.utils.inputToNotional(v);
     }
     if (notional <= 0) {
-      console.log('[Hyperscaled][MirrorPreview] Skipped: notional <= 0');
+      console.log('[HyperFunded][MirrorPreview] Skipped: notional <= 0');
       hideMirrorPreview();
       return;
     }
 
-    console.log('[Hyperscaled][MirrorPreview] Showing card', { notional, ratio: getMirrorRatio() });
+    console.log('[HyperFunded][MirrorPreview] Showing card', { notional, ratio: getMirrorRatio() });
 
     // Caps and exposures are compared in HS units. Convert HL exposure /
     // pending order to HS via mirrorMultiplier; caps already come in HS USD
@@ -531,7 +531,7 @@
   }
 
   function onSizeInputChange(input) {
-    console.log('[Hyperscaled][MirrorPreview] onSizeInputChange triggered');
+    console.log('[HyperFunded][MirrorPreview] onSizeInputChange triggered');
     showMirrorPreview(input);
   }
 

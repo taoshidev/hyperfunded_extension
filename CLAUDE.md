@@ -1,4 +1,4 @@
-# Hyperscaled Extension — Claude Guidelines
+# HyperFunded Extension — Claude Guidelines
 
 ## How to Work in This Project
 
@@ -13,7 +13,7 @@ When  suggesting any change to a color, spacing value, token, or component patte
 
 ## Project Overview
 
-A Chrome extension (MV3) for active traders to monitor their Hyperscaled funded trading account, open positions on Hyperliquid, and challenge progress in real-time. Built with HTML/CSS/Vanilla JS. No build step.
+A Chrome extension (MV3) for active traders to monitor their HyperFunded funded trading account, open positions on Hyperliquid, and challenge progress in real-time. Built with HTML/CSS/Vanilla JS. No build step.
 
 ## Tech Stack
 
@@ -26,13 +26,13 @@ A Chrome extension (MV3) for active traders to monitor their Hyperscaled funded 
 
 ### Users
 
-Active/professional traders using Hyperscaled's funded challenge program. They open this extension mid-session to check P&L, challenge progress, and drawdown — fast glances under pressure. They are technically literate, data-hungry, and performance-oriented. The job to be done: get accurate status information instantly without disrupting their trading flow.
+Active/professional traders using HyperFunded's funded challenge program. They open this extension mid-session to check P&L, challenge progress, and drawdown — fast glances under pressure. They are technically literate, data-hungry, and performance-oriented. The job to be done: get accurate status information instantly without disrupting their trading flow.
 
 ### Brand Personality
 
 **Precise · Powerful · Elite**
 
-Hyperscaled is a performance tool for serious traders. The tone is confident and authoritative — never playful or casual. Think Bloomberg Terminal meets modern web design. Every element earns its place.
+HyperFunded is a performance tool for serious traders. The tone is confident and authoritative — never playful or casual. Think Bloomberg Terminal meets modern web design. Every element earns its place.
 
 ### Emotional Goal
 

@@ -114,10 +114,10 @@ async function refreshValidatorData() {
     if (!state.storedAddress) return;
     try {
         const result = await safeSendMessage({ action: 'fetchValidatorData', address: state.storedAddress });
-        console.log('[Hyperscaled Popup] Validator data:', JSON.stringify(result).slice(0, 1000));
+        console.log('[HyperFunded Popup] Validator data:', JSON.stringify(result).slice(0, 1000));
 
         if (result.status !== 'success') {
-            console.warn('[Hyperscaled Popup] Validator returned non-success status:', result.status);
+            console.warn('[HyperFunded Popup] Validator returned non-success status:', result.status);
             if (!state.dashboardShown) {
                 hideDashboard();
                 showUnregistered();
@@ -134,7 +134,7 @@ async function refreshValidatorData() {
 
         applyValidatorData(result, state);
     } catch (e) {
-        console.error('[Hyperscaled Popup] Validator data fetch failed:', e.message, e);
+        console.error('[HyperFunded Popup] Validator data fetch failed:', e.message, e);
         if (!state.dashboardShown) {
             hideDashboard();
             showUnregistered();
@@ -146,7 +146,7 @@ async function refreshTraderLimits() {
     if (!state.storedAddress) return;
     try {
         const result = await safeSendMessage({ action: 'fetchTraderLimits', address: state.storedAddress });
-        console.log('[Hyperscaled Popup] Trader limits:', JSON.stringify(result).slice(0, 500));
+        console.log('[HyperFunded Popup] Trader limits:', JSON.stringify(result).slice(0, 500));
         state.traderLimits = result;
     } catch (e) {
         console.error('Trader limits fetch failed:', e);
@@ -223,7 +223,7 @@ function disconnectWallet() {
 // ── Initialization ───────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', async function() {
-    console.log('Hyperscaled extension loaded');
+    console.log('HyperFunded extension loaded');
     initExplainers();
     // initEventsPagination();  // Order Events section commented out
 
@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (analyticsLink) {
         analyticsLink.addEventListener('click', function(e) {
             e.preventDefault();
-            chrome.tabs.create({ url: 'https://hyperscaled.trade/dashboard' });
+            chrome.tabs.create({ url: 'https://hyperfunded.co/dashboard' });
         });
     }
 
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                     window.close();
                 }
             } catch (e) {
-                console.error('[Hyperscaled] Side panel open failed:', e);
+                console.error('[HyperFunded] Side panel open failed:', e);
             }
         });
     } else if (pinSideBtn) {
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     // Restore cached data instantly, then refresh live
-    console.log('[Hyperscaled Popup] Starting data refresh, storedAddress:', state.storedAddress);
+    console.log('[HyperFunded Popup] Starting data refresh, storedAddress:', state.storedAddress);
     state.dashboardShown = false;
     await restoreFromCache();
     refreshBalance();

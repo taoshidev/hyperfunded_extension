@@ -94,7 +94,7 @@ A single block showing the validator-enforced leverage limits on the funded HS a
 | Row label | Color | `--text-faint` |
 | Row label | Text transform | `uppercase`, `letter-spacing: 0.03em` |
 | Bar track | Background | `--bar-bg` (neutral white at 6%) |
-| Bar fill | Background | DD severity color via JS — teal `#00c6a7` < 70%, amber `#ffb900` 70–90%, red `rgb(239,68,68)` ≥ 90% or breached |
+| Bar fill | Background | DD severity color via JS — teal `#97FCE4` < 70%, amber `#ffb900` 70–90%, red `rgb(239,68,68)` ≥ 90% or breached |
 | Pending overlay | Background | 45° stripe in severity color of after-fill %, opacities `0.55 / 0.18` |
 | Bar height | — | `10px` |
 | Bar radius | — | `5px` |
@@ -150,7 +150,7 @@ The toast is built dynamically in `content/toast.js` (`showOversizeToast()`). Re
 <div class="hf-toast hf-toast--warning hf-toast--oversize hf-toast-show">
   <div class="hf-toast-icon"><!-- inline SVG warning glyph --></div>
   <div class="hf-toast-content">
-    <div class="hf-toast-title">Hyperscaled: Position Size Over Cap</div>
+    <div class="hf-toast-title">HyperFunded: Position Size Over Cap</div>
     <div class="hf-toast-msg">
       <b>BTC</b> exposure <b>$1,999.91</b> exceeds the per-asset cap of <b>$352.34</b>.
       Total exposure <b>$1,999.91</b> exceeds the portfolio cap of <b>$1,409.36</b>.
@@ -657,7 +657,7 @@ A welcome/onboarding screen shown when no wallet address is saved. Contains a ce
 <div id="walletConfig" class="screen-not-registered">
     <div class="not-registered-hero">
         <div class="not-registered-icon">⬡</div>
-        <div class="not-registered-title">Welcome to Hyperscaled</div>
+        <div class="not-registered-title">Welcome to HyperFunded</div>
         <div class="not-registered-body">Enter your Hyperliquid wallet address...</div>
     </div>
     <div class="not-registered-card">
@@ -669,7 +669,7 @@ A welcome/onboarding screen shown when no wallet address is saved. Contains a ce
         <button id="walletSave" class="wallet-save-btn wallet-save-btn--full">Check</button>
         <div class="not-registered-signup">
             <span class="not-registered-signup-text">Not registered yet?</span>
-            <a href="https://hyperscaled.trade" target="_blank" class="not-registered-signup-link">Sign up at hyperscaled.trade →</a>
+            <a href="https://hyperfunded.co" target="_blank" class="not-registered-signup-link">Sign up at hyperfunded.co →</a>
         </div>
     </div>
 </div>
@@ -976,7 +976,7 @@ A full settings view with wallet configuration, push notification toggles, and a
 
 ## Hyperliquid clamp toast (content script)
 
-Toast anchored top-right on the Hyperliquid site when the extension blocks or clamps order size against Hyperscaled limits. Rendered by `showClampToast()` in `content/toast.js` into `#hf-toast-container`.
+Toast anchored top-right on the Hyperliquid site when the extension blocks or clamps order size against HyperFunded limits. Rendered by `showClampToast()` in `content/toast.js` into `#hf-toast-container`.
 
 ### HTML structure (JS-generated)
 

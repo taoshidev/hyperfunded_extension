@@ -28,7 +28,7 @@
 
   function logTradeGateDiagnostics({ source, pendingNotional, orderValue, eventType, details, always } = {}) {
     if (!always && !TRADE_GATE_DEBUG) return;
-    console.log("[Hyperscaled][TradeGate]", {
+    console.log("[HyperFunded][TradeGate]", {
       source: source || "unknown",
       shouldBlockTrade: HF.state.shouldBlockTrade,
       forcedTradeBlock: HF.state.forcedTradeBlock,

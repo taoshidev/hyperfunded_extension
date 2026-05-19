@@ -1,6 +1,19 @@
 # Design Rules
 
-Decisions and conventions for the Hyperscaled extension. Paste this file as context into any Claude session working on this codebase.
+Decisions and conventions for the HyperFunded extension. Paste this file as context into any Claude session working on this codebase.
+
+---
+
+## Brand Palette
+
+HyperFunded's four-color brand system:
+
+| Hex | Role |
+|-----|------|
+| `#12110E` | Warm near-black — root background (`--bg`) |
+| `#97FCE4` | Mint teal — primary accent (`--accent`) |
+| `#0D735F` | Deep emerald — emphasis / pressed states (`--accent-deep`) |
+| `#E1DFD7` | Cream off-white — brand wordmark color (`--brand-cream`) |
 
 ---
 
@@ -8,15 +21,15 @@ Decisions and conventions for the Hyperscaled extension. Paste this file as cont
 
 | Token | Value | Use when |
 |-------|-------|----------|
-| `--bg` | `#18181b` | Root background for all Hyperscaled UI — popup container, injected banner. The single source of truth for the near-black base referenced throughout the design system. |
+| `--bg` | `#12110E` | Root background for all HyperFunded UI — popup container, injected banner. The single source of truth for the warm near-black base referenced throughout the design system. |
 
-**Rule:** Never hardcode `#18181b` — always use `var(--bg)`. This keeps future theming possible.
+**Rule:** Never hardcode `#12110E` — always use `var(--bg)`. This keeps future theming possible.
 
 ---
 
 ## White Opacity Scale
 
-The UI uses translucent whites over a near-black background (`#18181b`) to create depth. Never use flat gray colors for layered text — use the opacity primitives so elements stay correct on any future dark background.
+The UI uses translucent whites over the warm near-black background (`#12110E`) to create depth. Never use flat gray colors for layered text — use the opacity primitives so elements stay correct on any future dark background.
 
 | Token | Value | Use when |
 |-------|-------|----------|
@@ -35,19 +48,21 @@ The UI uses translucent whites over a near-black background (`#18181b`) to creat
 
 ## Accent Surfaces
 
-Teal (`#00c6a7`) is the brand's single interactive color. It signals: active, safe, positive, interactive.
+Mint teal (`#97FCE4`) is the brand's single interactive color. It signals: active, safe, positive, interactive.
 
 | Token | Value | Use when |
 |-------|-------|----------|
-| `--accent` | `#00c6a7` | Progress fills, active indicators, `color` on accent text |
+| `--accent` | `#97FCE4` | Progress fills, active indicators, `color` on accent text |
+| `--accent-deep` | `#0D735F` | Reserve for emphasis / pressed states / future deep-emerald moments (atmospheric, never primary UI) |
+| `--brand-cream` | `#E1DFD7` | HyperFunded wordmark color in the logo SVG only; do not use as general text color |
 | `--green` | alias of `--accent` | **Directional/semantic use only:** positive P&L, positive balance change |
-| `--accent-bg` | 10% teal | Badge backgrounds only (LONG badge, In Challenge badge) |
-| `--accent-border` | 20% teal | Badge borders; also ghost button hover background |
-| `--accent-hover-border` | 35% teal | Ghost button hover border only |
+| `--accent-bg` | 10% mint | Badge backgrounds only (LONG badge, In Challenge badge) |
+| `--accent-border` | 22% mint | Badge borders; also ghost button hover background |
+| `--accent-hover-border` | 38% mint | Ghost button hover border only |
 
-**Rule:** Reserve teal for **one element per visual grouping**. Never apply `--accent` to more than one text element in the same card. If two elements compete for teal, one of them is the wrong color.
+**Rule:** Reserve mint for **one element per visual grouping**. Never apply `--accent` to more than one text element in the same card. If two elements compete for mint, one of them is the wrong color.
 
-**Budget:** The 380px popup has two categories of teal:
+**Budget:** The 380px popup has two categories of mint:
 - **Semantic/directional** (always correct, exempt from budget): `--green` on positive P&L, positive change values — this is trading convention, not brand decoration. A trader reads `color: green` as "winning" before they read the number.
 - **Brand accent** (3 max simultaneously): In Challenge badge, challenge progress fill, LONG position badge. That's the brand budget spent.
 
@@ -154,10 +169,10 @@ Fixed-position toasts injected on the Hyperliquid trading page (`content.css` �
 |------|----------------|
 | Host isolation | Do **not** use `var(--bg)` / `var(--text-primary)` on toasts — Hyperliquid defines those on `:root`; a translucent `--bg` made injected toasts look “see-through.” Prefer **`#hf-toast-container`-scoped** rules in `content.css` so page `background` shorthands lose the cascade war; use literal `background: #hex none` (not only `background-color`) so host `background-image` layers are cleared. No `::before` glow on toasts — it read as transparency. |
 | Shown state | `opacity: 1` on `.hf-toast-show` — must stay fully opaque over HL’s busy UI. |
-| Default surface | Solid `#141416`, 14% white border, inset + outer shadow for separation from the chart. |
+| Default surface | Solid `#1A1814`, 14% white border, inset + outer shadow for separation from the chart. |
 | `--warning` (order prevented / zero headroom) | Solid `#120f0f`, strong red border + 3px left `#f87171`, title `#fecaca`, body ~94% white, light text-shadow for legibility on busy pixels. |
 | `--alert` (clamped but non-zero) | Solid `#1a1712`, amber border + 3px left `#ffb900`, title `#fcd34d`. |
-| `--info` | Solid `#141416`, teal border + 3px left `#00c6a7` — no translucent “glass” fill. |
+| `--info` | Solid `#1A1814`, teal border + 3px left `#97FCE4` — no translucent “glass” fill. |
 | `--blocked` (manual over-limit attempt) | Compact red-leaning toast (`280px` width) with title `#f87171`, concise reason line, and a click-to-expand helper panel (`.hf-toast-details`) that explicitly answers **what is happening, why it is blocked, and how to avoid it**. |
 
 **Expandable blocked helper rule:** Keep the first line brief and actionable; put explanatory copy behind a button (`.hf-toast-details-toggle`, label "Why blocked?"). The expanded panel uses a low-contrast red tint (`rgba(248,113,113,0.05)`), 10px text, and three structured bullets (`What`, `Why`, `How to avoid`) so traders can skim under pressure.
@@ -299,7 +314,7 @@ The injected banner's Intraday / EOD Trailing stat group is clickable and opens 
 | Property | Value |
 |----------|-------|
 | Position | `absolute`, `top: 38px` (below bar), left-aligned to trigger |
-| Background | `#13161A` (slightly lighter than `--bg`) |
+| Background | `#16140F` (slightly lighter than `--bg`) |
 | Border | `1px solid --border-card`, no top border (visually attaches to bar) |
 | Border-radius | `0 0 --radius-card --radius-card` (bottom corners only) |
 | Padding | `--space-4` |
@@ -364,7 +379,7 @@ This is a stronger semantic than "blocked" because the trader has already breach
 | Property | Value |
 |----------|-------|
 | Variant class | `hf-toast hf-toast--warning hf-toast--oversize` (reuses the `--warning` red surface so severity matches "Order Prevented") |
-| Title | `"Hyperscaled: Position Size Over Cap"` |
+| Title | `"HyperFunded: Position Size Over Cap"` |
 | Body | Worst per-asset breach first (`<symbol>` exposure `<used>` exceeds per-asset cap `<max>`), then total breach if also over, then a one-line action ("Reduce or close positions to bring exposure back under the cap.") |
 | Persistence | Stays up while the breach holds — no auto-dismiss timer. Re-evaluated after every ACCOUNT update (validator fetch, balance check, limits fetch) via `HF.toast.evaluateOversizeState()` |
 
@@ -419,7 +434,7 @@ The dashboard **Order Events** section shows validator order activity. When ther
 
 ---
 
-## Leverage & Buying Power — Hyperscaled-Side Block
+## Leverage & Buying Power — HyperFunded-Side Block
 
 A single block showing the validator-enforced leverage limits on the funded HS account. HL has no per-pair or portfolio limit (orders pass through unchanged), so a separate HL block was removed — a bar with no real ceiling was misleading. HL exposure data is still available on HL's own UI and in the injected mirror preview at order entry.
 
@@ -429,7 +444,7 @@ A single block showing the validator-enforced leverage limits on the funded HS a
 | Title | `Leverage & Buying Power` |
 | Basis note | `10px`, `--font-ui`, `--text-faint` — `Scaling ratio: HS balance $X ÷ HL equity $Y = Zx` (no trailing "HL trading is unrestricted" — that meaning lives in the info-expand instead) |
 | Basis values | `--font-mono`, `--text-body` — inline monospace for dollar amounts and ratios |
-| Bar fill (filled) | DD severity scale via JS — teal `#00c6a7` < 70%, amber `#ffb900` 70–90%, red `rgb(239,68,68)` ≥ 90% or breached. Same `capColor()` thresholds as banner DD and the mirror preview |
+| Bar fill (filled) | DD severity scale via JS — teal `#97FCE4` < 70%, amber `#ffb900` 70–90%, red `rgb(239,68,68)` ≥ 90% or breached. Same `capColor()` thresholds as banner DD and the mirror preview |
 | Bar overlay (pending) | 45° striped gradient in the severity color of the after-fill % — pending = "would-be exposure if these limits fill", not real exposure, so it stays striped |
 | Bar track | `--bar-bg` (neutral white at 6%) |
 | Pending text color | Severity color of after-fill % — matches the stripe color, set inline by JS |
@@ -465,13 +480,13 @@ A floating card that appears below the order size input on the Hyperliquid tradi
 |----------|-------|
 | Position | Fixed, below the active size input (8px gap), clamped to viewport |
 | Width | `220px` |
-| Background | `#141416` (solid, no translucency) |
+| Background | `#1A1814` (solid, no translucency) |
 | Border | `1px solid rgba(255,255,255,0.08)` |
 | Border radius | `10px` |
 | Shadow | `0 8px 24px rgba(0,0,0,0.6)`, subtle white inset glow |
 | Row labels | `11px`, `rgba(255,255,255,0.45)` |
 | HL value | `12px / 500`, Menlo, `rgba(255,255,255,0.85)` |
-| Mirror value | `12px / 600`, Menlo, `#00c6a7` (teal) |
+| Mirror value | `12px / 600`, Menlo, `#97FCE4` (teal) |
 | Mirror ratio | `10px`, Menlo, `rgba(255,255,255,0.3)`, parenthesized |
 | Capacity title | `9px / 600`, uppercase, `rgba(255,255,255,0.3)` |
 | Capacity pct | `11px / 600`, Menlo, color shifts with after-fill % (teal → amber → red) |
@@ -486,9 +501,9 @@ The bar reads "are you about to breach a hard limit?", so it uses the same teal/
 
 | Segment | Width represents | Background |
 |---------|------------------|------------|
-| Solid (`.hf-mp-bar-current`) | The portion that exists both before and after the order. For add/new: current %. For reduce/flip: after %. | `capColor(solid%)` — teal `#00c6a7` < 70%, amber `#ffb900` 70–90%, red `rgb(239,68,68)` ≥ 90%. |
-| Delta — adding (`.hf-mp-bar-pending`) | `afterPct − currentPct`, drawn right of the solid. Color reflects severity of after %. | `barPendingBg(after%)` — teal `rgba(0,198,167,0.4)` < 70%, amber `rgba(255,185,0,0.4)` 70–90%, red `rgba(239,68,68,0.5)` ≥ 90%. |
-| Delta — reducing (`.hf-mp-bar-pending`) | `currentPct − afterPct`, drawn right of the solid. The chunk being closed. | `repeating-linear-gradient(135deg, rgba(0,198,167,0.55) 0 2px, rgba(0,198,167,0.15) 2px 4px)` — teal stripes, "fading away" cue. |
+| Solid (`.hf-mp-bar-current`) | The portion that exists both before and after the order. For add/new: current %. For reduce/flip: after %. | `capColor(solid%)` — teal `#97FCE4` < 70%, amber `#ffb900` 70–90%, red `rgb(239,68,68)` ≥ 90%. |
+| Delta — adding (`.hf-mp-bar-pending`) | `afterPct − currentPct`, drawn right of the solid. Color reflects severity of after %. | `barPendingBg(after%)` — teal `rgba(151,252,228,0.4)` < 70%, amber `rgba(255,185,0,0.4)` 70–90%, red `rgba(239,68,68,0.5)` ≥ 90%. |
+| Delta — reducing (`.hf-mp-bar-pending`) | `currentPct − afterPct`, drawn right of the solid. The chunk being closed. | `repeating-linear-gradient(135deg, rgba(151,252,228,0.55) 0 2px, rgba(151,252,228,0.15) 2px 4px)` — teal stripes, "fading away" cue. |
 
 **Rule:** Direction is encoded by the delta's visual treatment (solid = adding, striped = reducing). Severity is encoded by the delta's hue (teal/amber/red by after %). Combined: a striped tail always means "you're closing"; a solid amber/red overlay always means "this order is pushing into warning/breach".
 

@@ -33,7 +33,7 @@
     const limitScope = constraint === "per-pair" ? "single-asset" : "portfolio";
     const heading = "Why this was blocked";
     const what = "You tried to place a size above your current " + limitScope + " capacity.";
-    const why = "Hyperscaled enforces this cap to keep your account inside funded-challenge risk limits.";
+    const why = "HyperFunded enforces this cap to keep your account inside funded-challenge risk limits.";
     const how = "Lower size to <b>" + formatSizeForToast(clampedSize, sizeUnit) + " " + sizeUnit +
       "</b> or less, or close/reduce existing positions to free " + limitScope + " capacity.";
     const capacity = "Remaining capacity right now: <b>" + formatSizeForToast(allowed, sizeUnit) + " " + sizeUnit + "</b>.";
@@ -91,12 +91,12 @@
     if (!isBlockedOnly) blockedToastDetailsExpanded = false;
 
     let messageHtml = "Order exceeds your <b>" + constraint + " position size limit</b>.";
-    let titleHtml = "Hyperscaled: Size clamped to " + formatSizeForToast(clampedSize, sizeUnit) + " " + sizeUnit;
+    let titleHtml = "HyperFunded: Size clamped to " + formatSizeForToast(clampedSize, sizeUnit) + " " + sizeUnit;
     let iconHtml = "\u26a0\ufe0f";
     let variantClass = "hf-toast hf-toast--alert";
 
     if (allowed === 0) {
-       titleHtml = "Hyperscaled: Order Prevented";
+       titleHtml = "HyperFunded: Order Prevented";
        messageHtml =
          "No remaining capacity within your <b>" + constraint + "</b> position limit.";
        if (perAssetBuyContext) {
@@ -359,7 +359,7 @@
       '<div class="hf-toast-icon">' + iconHtml + '</div>' +
       '<div class="hf-toast-content">' +
         '<div class="hf-toast-title">Unsupported Pair</div>' +
-        '<div class="hf-toast-msg"><b>' + (symbol || "This pair") + '</b> is not supported by Hyperscaled. Switch to a supported pair to trade.</div>' +
+        '<div class="hf-toast-msg"><b>' + (symbol || "This pair") + '</b> is not supported by HyperFunded. Switch to a supported pair to trade.</div>' +
       '</div>' +
       '<button class="hf-toast-close" type="button" aria-label="Dismiss">' +
         '<svg width="10" height="10" viewBox="0 0 10 10" fill="none">' +

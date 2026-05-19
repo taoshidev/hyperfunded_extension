@@ -7,10 +7,12 @@
 
 /* ── Design Tokens ───────────────────────────────────── */
 :root {
-    /* Base */
-    --bg:              #18181b;
-    --accent:          #00c6a7;
-    --green:           #00c6a7;
+    /* Base — HyperFunded brand palette */
+    --bg:              #12110E;          /* warm near-black, HyperFunded canvas */
+    --accent:          #97FCE4;          /* mint teal — primary brand accent */
+    --accent-deep:     #0D735F;          /* deep emerald — emphasis / pressed states */
+    --brand-cream:     #E1DFD7;          /* off-white cream — brand wordmark color */
+    --green:           #97FCE4;          /* positive P&L (alias of accent) */
     --amber:           #ffb900;
     --red:             rgb(239, 68, 68);
     --text-primary:    #ffffff;
@@ -46,10 +48,10 @@
     --input-border:    rgba(255, 255, 255, 0.08);
     --bar-bg:          rgba(255, 255, 255, 0.06);
 
-    /* Accent surfaces */
-    --accent-bg:           rgba(0, 198, 167, 0.1);
-    --accent-border:       rgba(0, 198, 167, 0.2);   /* also used as button hover bg */
-    --accent-hover-border: rgba(0, 198, 167, 0.35);  /* button active/hover border */
+    /* Accent surfaces — mint teal rgba(151, 252, 228, …) */
+    --accent-bg:           rgba(151, 252, 228, 0.1);
+    --accent-border:       rgba(151, 252, 228, 0.22);  /* also used as button hover bg */
+    --accent-hover-border: rgba(151, 252, 228, 0.38);  /* button active/hover border */
 
     /* Danger surfaces */
     --danger-bg:     rgba(239, 68, 68, 0.08);  /* warning panels, short badge bg */
@@ -100,7 +102,7 @@ body {
     border: 1px solid var(--border-outer);
     border-radius: var(--radius-outer);
     box-shadow: 0px 40px 80px 0px rgba(0, 0, 0, 0.5),
-                0px 0px 60px 0px rgba(0, 198, 167, 0.06);
+                0px 0px 60px 0px rgba(151, 252, 228, 0.06);
     overflow: hidden;
 }
 
@@ -112,7 +114,7 @@ body {
     right: -200px;
     width: 500px;
     height: 500px;
-    background: radial-gradient(circle, rgba(0, 198, 167, 0.07) 0%, transparent 55%);
+    background: radial-gradient(circle, rgba(151, 252, 228, 0.07) 0%, transparent 55%);
     pointer-events: none;
     z-index: 0;
 }
@@ -263,7 +265,7 @@ body {
 }
 
 .wallet-input:focus {
-    border-color: rgba(0, 198, 167, 0.4);
+    border-color: rgba(151, 252, 228, 0.4);
 }
 
 .wallet-input::placeholder {
@@ -396,7 +398,7 @@ body {
 }
 
 .wallet-input--full:focus {
-    border-color: rgba(0, 198, 167, 0.4);
+    border-color: rgba(151, 252, 228, 0.4);
 }
 
 .wallet-save-btn--full {
@@ -953,10 +955,10 @@ body {
 .capacity-fill--pending {
     background: repeating-linear-gradient(
         45deg,
-        rgba(0, 198, 167, 0.55),
-        rgba(0, 198, 167, 0.55) 4px,
-        rgba(0, 198, 167, 0.18) 4px,
-        rgba(0, 198, 167, 0.18) 8px
+        rgba(151, 252, 228, 0.55),
+        rgba(151, 252, 228, 0.55) 4px,
+        rgba(151, 252, 228, 0.18) 4px,
+        rgba(151, 252, 228, 0.18) 8px
     );
 }
 
@@ -1812,7 +1814,7 @@ body {
 }
 
 .settings-input:focus {
-    border-color: rgba(0, 198, 167, 0.4);
+    border-color: rgba(151, 252, 228, 0.4);
 }
 
 .settings-save-btn {

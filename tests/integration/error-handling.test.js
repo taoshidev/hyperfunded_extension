@@ -36,7 +36,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.resolve(__dirname, 'scripts', 'hl_order.py');
 const PYTHON = process.env.TEST_PYTHON
-  || '/Users/arrash/develop/hyperscaled_tgbot/.venv/bin/python';
+  || '/Users/arrash/develop/hyperfunded_tgbot/.venv/bin/python';
 
 function runValidate(pair, usdSize) {
   const result = spawnSync(PYTHON, [SCRIPT, 'validate', pair, String(usdSize)], {

@@ -250,7 +250,7 @@ export function applyValidatorData(result, state) {
     // The HS section below is the only capacity surface that maps to a real
     // validator-enforced limit.
 
-    // ── Trading Capacity (Hyperscaled) — validator-enforced caps ────────────
+    // ── Trading Capacity (HyperFunded) — validator-enforced caps ────────────
     // Every $ figure in this section depends on mirrorRatio. When it is 0
     // (accountBalance unavailable) we cannot compute honest HS values, so
     // render "--" rather than a misleading $0.00.

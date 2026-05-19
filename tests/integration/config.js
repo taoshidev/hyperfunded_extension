@@ -1,7 +1,7 @@
 /**
  * Integration test configuration.
  *
- * Uses the testnet Hyperscaled validator against the real mainnet HL wallet.
+ * Uses the testnet HyperFunded validator against the real mainnet HL wallet.
  * All credentials can be overridden via environment variables for CI.
  *
  * Two wallet slots:

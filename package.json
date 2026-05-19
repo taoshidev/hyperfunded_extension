@@ -1,5 +1,5 @@
 {
-  "name": "hyperscaled-extension",
+  "name": "hyperfunded-extension",
   "type": "module",
   "scripts": {
     "test": "vitest run",

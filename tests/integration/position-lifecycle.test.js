@@ -6,7 +6,7 @@
  *   JS runs extension transformation → JS polls validator →
  *   JS verifies display pipeline → Python SDK closes order → cleanup checks
  *
- * Order placement uses the hyperscaled SDK (tgbot venv) to avoid
+ * Order placement uses the hyperfunded SDK (tgbot venv) to avoid
  * reimplementing HL agent-wallet signing in JS.
  *
  * The SDK places orders on VAULT_ADDRESS via the agent key.
@@ -17,7 +17,7 @@
  *   - GOLD-USDC : xyz:GOLD perp — verifies xyz coin display pipeline (the fixed bug)
  *
  * Requires:
- *   /Users/arrash/develop/hyperscaled_tgbot/.venv to have the hyperscaled SDK.
+ *   /Users/arrash/develop/hyperfunded_tgbot/.venv to have the hyperfunded SDK.
  *   Override with TEST_PYTHON env var.
  *
  * Skip:
@@ -45,7 +45,7 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.resolve(__dirname, 'scripts', 'hl_order.py');
 const PYTHON = process.env.TEST_PYTHON
-  || '/Users/arrash/develop/hyperscaled_tgbot/.venv/bin/python';
+  || '/Users/arrash/develop/hyperfunded_tgbot/.venv/bin/python';
 
 function runPython(...args) {
   const result = spawnSync(PYTHON, [SCRIPT, ...args], {
