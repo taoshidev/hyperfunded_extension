@@ -3,8 +3,8 @@ import { fmtUsd } from './format.js';
 export function setPlaceholders() {
     const ids = ['fundedBalance', 'fundedChange', 'challengeValue', 'challengeLabel',
                  'dailyDrawdownValue', 'trailingDrawdownValue', 'drawdownLabel',
-                 'hsBasisRatio', 'hsBasisValue', 'hsBasisHlEquity',
-                 'hsPerPairRemaining', 'hsCapacityUsed', 'hsCapacityMax', 'hsCapacityRemaining'];
+                 'hfBasisRatio', 'hfBasisValue', 'hfBasisHlEquity',
+                 'hfPerPairRemaining', 'hfCapacityUsed', 'hfCapacityMax', 'hfCapacityRemaining'];
     for (const id of ids) {
         const el = document.getElementById(id);
         if (el) el.textContent = '--';

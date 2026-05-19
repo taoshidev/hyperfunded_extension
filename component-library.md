@@ -42,9 +42,9 @@ The `data-info` attribute on the button matches the `id="info-{key}"` on the pan
 
 ---
 
-## Leverage & Buying Power Block (HS-side)
+## Leverage & Buying Power Block (HF-side)
 
-A single block showing the validator-enforced leverage limits on the funded HS account. HL has no limits post-faca41c (orders pass through unchanged), so the previous HL/HS toggle block was collapsed to a single HS-only block. HL exposure data still appears in the injected mirror preview at order entry, where it actually informs an action.
+A single block showing the validator-enforced leverage limits on the funded HF account. HL has no limits post-faca41c (orders pass through unchanged), so the previous HL/HF toggle block was collapsed to a single HF-only block. HL exposure data still appears in the injected mirror preview at order entry, where it actually informs an action.
 
 ### HTML structure
 
@@ -54,29 +54,29 @@ A single block showing the validator-enforced leverage limits on the funded HS a
         <span class="capacity-title">Leverage &amp; Buying Power</span>
     </div>
     <div class="capacity-basis-note">
-        Scaling ratio: HS balance <span id="hsBasisValue">$1,002.26</span> &divide; HL equity <span id="hsBasisHlEquity">$47.99</span> = <span id="hsBasisRatio">20.9x</span>
+        Scaling ratio: HF balance <span id="hfBasisValue">$1,002.26</span> &divide; HL equity <span id="hfBasisHlEquity">$47.99</span> = <span id="hfBasisRatio">20.9x</span>
     </div>
     <div class="capacity-row">
         <div class="capacity-row-header">
             <span class="capacity-row-label">Per Pair Limit</span>
         </div>
-        <div class="capacity-asset-list" id="hsPerPairSubBars"><!-- one sub-bar per open asset --></div>
+        <div class="capacity-asset-list" id="hfPerPairSubBars"><!-- one sub-bar per open asset --></div>
         <div class="capacity-footer">
-            <span class="capacity-used" id="hsPerPairBreakdown">No open positions</span>
-            <span class="capacity-remaining"><span id="hsPerPairRemaining">--</span> left</span>
+            <span class="capacity-used" id="hfPerPairBreakdown">No open positions</span>
+            <span class="capacity-remaining"><span id="hfPerPairRemaining">--</span> left</span>
         </div>
     </div>
     <div class="capacity-row">
         <div class="capacity-row-header">
             <span class="capacity-row-label">Portfolio Limit</span>
-            <span class="capacity-row-value"><span id="hsCapacityUsed">$302.72</span> / <span id="hsCapacityMax">$2,004.51</span></span>
+            <span class="capacity-row-value"><span id="hfCapacityUsed">$302.72</span> / <span id="hfCapacityMax">$2,004.51</span></span>
         </div>
         <div class="capacity-bar">
-            <div class="capacity-fill capacity-fill--total" id="hsCapacityFill" style="width: 15%;"></div>
+            <div class="capacity-fill capacity-fill--total" id="hfCapacityFill" style="width: 15%;"></div>
         </div>
         <div class="capacity-footer">
             <span class="capacity-used">All positions</span>
-            <span class="capacity-remaining"><span id="hsCapacityRemaining">$1,701.79</span> left</span>
+            <span class="capacity-remaining"><span id="hfCapacityRemaining">$1,701.79</span> left</span>
         </div>
     </div>
 </div>
@@ -110,9 +110,9 @@ A single block showing the validator-enforced leverage limits on the funded HS a
 
 - Bars use the DD severity scale (teal/amber/red) — same `capColor()` thresholds as the banner DD bars and the injected mirror preview, so proximity-to-cap reads consistently across surfaces. JS sets the fill `background` inline based on severity.
 - Two rows: "Per Pair Limit" and "Portfolio Limit".
-- The basis note shows the scaling ratio as a formula (`HS balance ÷ HL equity = ratio`) so the trader can verify the conversion against their own readings.
+- The basis note shows the scaling ratio as a formula (`HF balance ÷ HL equity = ratio`) so the trader can verify the conversion against their own readings.
 - "HL trading is unrestricted" replaces the earlier "no HL-side cap" — same meaning, framed positively (what the trader can do, not what's missing).
-- Filled exposure comes from `hsPositionsByCoin` (validator's authoritative size × price). Pending overlay comes from HL resting-orders × mirror ratio (validator only records pending at fill time, so HL clearinghouse is the source).
+- Filled exposure comes from `hfPositionsByCoin` (validator's authoritative size × price). Pending overlay comes from HL resting-orders × mirror ratio (validator only records pending at fill time, so HL clearinghouse is the source).
 - Pending is projected against signed current exposure using the mirror-preview branch logic (`add | reduce | flip | new`). A buy pending against a short is **reduce** or **flip**, not additive. Each pair's after-magnitude is then clamped by `pair_cap` and shared `portfolio_room`. The total row aggregates per-pair after-magnitudes — never the raw sum of pending notional.
 - Bar segments per branch: add/new = solid current + overlay growth (severity stripe); reduce = solid after + overlay closing tail (teal stripe matching mirror preview); flip = solid jumps to after on new side, no overlay.
 - The `± $X pending` text shows the net magnitude delta (sign indicates direction). Insert it *between* filled and `/ cap` so the row reads as a math expression: `$filled + $pending pending / $cap`. Sign and value are space-separated (`+ $171.94`). Same format applies to per-pair and portfolio rows. Append `(capped)` when `pair_cap` or `portfolio_room` binds the projection.
@@ -292,7 +292,7 @@ Never show the full wallet-config card when an address is already saved. `showWa
 ## Accent Card Block
 
 Card treatment is **reserved** for:
-- HS Account balance card (primary KPI — the one number that matters most)
+- HF Account balance card (primary KPI — the one number that matters most)
 - Position cards (grouped interactive data)
 - Wallet Config form (setup UI, first-run only)
 
@@ -315,7 +315,7 @@ Everything else — Leverage & Buying Power, Challenge Progress, Drawdown, HL Ac
 
 ### Variants
 
-**Primary card** (stronger surface — used by HS Account balance card):
+**Primary card** (stronger surface — used by HF Account balance card):
 ```css
 background: var(--card-bg);
 border-color: rgba(255,255,255,0.1);
@@ -396,14 +396,14 @@ Hover reveals a teal border as the only accent signal — confirming interactivi
 
 ## Balance Grid
 
-A 2-column grid displaying the HS Account and HL Account as separate cards. Each card is a label/value/sublabel stack.
+A 2-column grid displaying the HF Account and HL Account as separate cards. Each card is a label/value/sublabel stack.
 
 ### HTML structure
 
 ```html
 <div class="balance-grid">
     <div class="balance-card">
-        <div class="balance-label">HS Account</div>
+        <div class="balance-label">HF Account</div>
         <div class="balance-value"><span id="fundedBalance">--</span></div>
         <div class="balance-change positive"><span id="fundedChange">--</span></div>
     </div>
@@ -440,7 +440,7 @@ A vertically stacked label-above-value pattern used wherever data is displayed: 
 
 ```html
 <!-- Balance card -->
-<div class="balance-label">HS Account</div>
+<div class="balance-label">HF Account</div>
 <div class="balance-value">$106,456.78</div>
 <div class="balance-change positive">+$6,456.78 (6.45%)</div>
 

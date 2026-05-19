@@ -1,21 +1,21 @@
 /**
  * Tests for trader limit scaling (content/api.js fetchTraderLimits).
  *
- * Refactor (Diff #2/#3, 2026-05): caps now live on the HS side. The validator
+ * Refactor (Diff #2/#3, 2026-05): caps now live on the HF side. The validator
  * publishes USD caps in starting-account-size scale (e.g. $5,000 / $20,000 on
- * a $10,000 account = 50% / 200%). The extension stores caps as HS-side USD
+ * a $10,000 account = 50% / 200%). The extension stores caps as HF-side USD
  * by deriving the static ratio (pair_usd / fundedSize) and applying it to
- * the live HS balance:
+ * the live HF balance:
  *
  *   ACCOUNT.maxPositionPerPair = (max_position_per_pair_usd / fundedSize) × accountBalance
  *   ACCOUNT.maxPortfolio       = (max_portfolio_usd       / fundedSize) × accountBalance
  *
  * This keeps caps tracking realised PnL: balance grows → cap grows; drawdown
- * shrinks balance → cap shrinks. Comparison is HS-vs-HS (both in HS USD
+ * shrinks balance → cap shrinks. Comparison is HF-vs-HF (both in HF USD
  * scale) — never the old `pairUsd / scalingRatio` HL-side math.
  *
  * Covers:
- *  - HS-scale cap derivation (pairUsd / fundedSize × accountBalance)
+ *  - HF-scale cap derivation (pairUsd / fundedSize × accountBalance)
  *  - Guard: skip when fundedSize ≤ 0 or accountBalance ≤ 0
  *  - Cap tracks accountBalance (grows / shrinks with PnL)
  *  - effectiveMax* falls back to accountBalance when limits not loaded
@@ -84,10 +84,10 @@ describe('applyTraderLimits — input guards', () => {
   });
 });
 
-// ─── Per-pair cap (HS-scale) ──────────────────────────────────────────────────
+// ─── Per-pair cap (HF-scale) ──────────────────────────────────────────────────
 
-describe('per-pair cap — HS-scale derivation', () => {
-  it('flat PnL: $10k funded, $10k balance, validator $5k pair → $5k HS cap', () => {
+describe('per-pair cap — HF-scale derivation', () => {
+  it('flat PnL: $10k funded, $10k balance, validator $5k pair → $5k HF cap', () => {
     // Ratio = 5000/10000 = 0.5 → cap = 0.5 × 10000 = 5000
     const { maxPositionPerPair } = applyTraderLimits({
       accountBalance: 10000, fundedSize: 10000,
@@ -139,10 +139,10 @@ describe('per-pair cap — HS-scale derivation', () => {
   });
 });
 
-// ─── Portfolio cap (HS-scale) ─────────────────────────────────────────────────
+// ─── Portfolio cap (HF-scale) ─────────────────────────────────────────────────
 
-describe('portfolio cap — HS-scale derivation', () => {
-  it('flat PnL: $10k funded, $10k balance, validator $20k portfolio → $20k HS cap', () => {
+describe('portfolio cap — HF-scale derivation', () => {
+  it('flat PnL: $10k funded, $10k balance, validator $20k portfolio → $20k HF cap', () => {
     const { maxPortfolio } = applyTraderLimits({
       accountBalance: 10000, fundedSize: 10000,
       max_position_per_pair_usd: 5000, max_portfolio_usd: 20000,
@@ -216,7 +216,7 @@ describe('effectiveMaxTotalUsd', () => {
 // ─── Integration: typical $10k funded trader ─────────────────────────────────
 
 describe('limits integration — typical scenarios', () => {
-  it('$10k funded with 50% / 200% validator caps maps cleanly to HS USD', () => {
+  it('$10k funded with 50% / 200% validator caps maps cleanly to HF USD', () => {
     const validatorLimits = { max_position_per_pair_usd: 5000, max_portfolio_usd: 20000 };
 
     // Flat PnL
@@ -243,7 +243,7 @@ describe('limits integration — typical scenarios', () => {
 
   it('cap moves with accountBalance — never frozen at fundedSize', () => {
     // Critical: pre-refactor behaviour froze the cap at the static USD figure
-    // from the validator. Now the cap is a fraction of live HS balance, so
+    // from the validator. Now the cap is a fraction of live HF balance, so
     // it tracks PnL.
     const limits = { max_position_per_pair_usd: 5000, max_portfolio_usd: 20000 };
     const r1 = applyTraderLimits({ accountBalance: 9000,  fundedSize: 10000, ...limits });

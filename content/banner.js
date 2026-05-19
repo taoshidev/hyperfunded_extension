@@ -132,7 +132,7 @@
         ${ACCOUNT.registrationChecked ? `<span class="hf-status-badge${ACCOUNT.isRegistered ? '' : ' hf-status-badge--unregistered'}">● ${ACCOUNT.isRegistered ? (ACCOUNT.inChallenge ? 'In Challenge' : 'Funded') : 'Unregistered'}</span>` : ''}
         <span class="hf-divider"></span>
         <div class="hf-stat-group">
-          <span class="hf-stat-label">HS BALANCE</span>
+          <span class="hf-stat-label">HF BALANCE</span>
           <span class="hf-stat-value" id="hf-equity">${fmt(equity)}</span>
         </div>
         <span class="hf-divider"></span>

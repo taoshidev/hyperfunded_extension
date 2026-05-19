@@ -138,7 +138,7 @@ async function getFriendlyToHlCoin() {
   }
 }
 
-// Derive per-coin HS position values strictly as size × price:
+// Derive per-coin HF position values strictly as size × price:
 //   size  = sum of signed `q` (quantity) across the position's filled
 //           orders (Vanta emits q on every Order.to_dashboard when set;
 //           falls back to v/pr with sign by order_type when q is absent
@@ -291,8 +291,8 @@ export async function fetchValidatorData(address) {
   const cacheKey = `cache_validator_${normalizedAddress}`;
 
   // Fetch validator dashboard + HL mid prices in parallel. Mid prices are
-  // needed to derive HS position values as size × price. A failed mid
-  // prices call is non-fatal — hsPositionsByCoin will be empty for that
+  // needed to derive HF position values as size × price. A failed mid
+  // prices call is non-fatal — hfPositionsByCoin will be empty for that
   // refresh and downstream UI shows "--" rather than fabricated values.
   const [valRes, midsRes] = await Promise.all([
     fetchWithTimeout(`${VALIDATOR_URL}/hl-traders/${normalizedAddress}`),
@@ -319,7 +319,7 @@ export async function fetchValidatorData(address) {
   const positionsList = Array.isArray(result.positions)
     ? result.positions
     : (result.positions?.positions || []);
-  result.hsPositionsByCoin = deriveHsPositionsByCoin(positionsList, midPrices, friendlyToHl);
+  result.hfPositionsByCoin = deriveHsPositionsByCoin(positionsList, midPrices, friendlyToHl);
 
   setCachedResponse(cacheKey, result);
   return result;
@@ -354,7 +354,7 @@ function extractExposureFromAssetPositions(perpsData) {
     // True position value = size × current price. HL pre-computes this as
     // `positionValue`; we fall back to `size × markPx` when it's missing.
     // Never derive notional from `net_leverage × account_size` — that mixes
-    // an HS-side ratio with a frozen funded amount and only approximates
+    // an HF-side ratio with a frozen funded amount and only approximates
     // truth when current equity == account_size and HL/validator are in sync.
     const directNotional =
       parseFloat(pos?.positionValue ?? pos?.notionalValue ?? pos?.usdValue ?? pos?.value ?? row?.positionValue);
@@ -576,7 +576,7 @@ export async function fetchHLBalance(address) {
   // Remap HL coin keys (e.g. "XYZ:CL") to validator-friendly names (e.g.
   // "WTIOIL") so popup and content script consumers see consistent labels
   // matching the validator's `trade_pair` form. Native pairs pass through
-  // (BTC → BTC). Without this, the popup unions hsPositionsByCoin
+  // (BTC → BTC). Without this, the popup unions hfPositionsByCoin
   // (friendly-keyed) with pendingNotionalByPair (HL-keyed), and the same
   // pair shows up under two labels (e.g. "WTIOIL" and "XYZCL").
   const friendlyToHlMap = await getFriendlyToHlCoin();

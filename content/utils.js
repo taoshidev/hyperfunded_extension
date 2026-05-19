@@ -4,14 +4,14 @@
   const { ACCOUNT } = HF.state;
 
   function marginLimitBasisUsd() {
-    // Caps live on the HS side now (= ratio × accountBalance), so the
-    // fallback basis when validator limits haven't loaded is the live HS
-    // balance. Trade-gate / mirror-preview compare HS-mapped exposure to
+    // Caps live on the HF side now (= ratio × accountBalance), so the
+    // fallback basis when validator limits haven't loaded is the live HF
+    // balance. Trade-gate / mirror-preview compare HF-mapped exposure to
     // this, not raw HL equity.
     return Number(ACCOUNT.accountBalance) || 0;
   }
 
-  // Multiplier that converts HL-side notional to HS-side notional.
+  // Multiplier that converts HL-side notional to HF-side notional.
   // HS_value = HL_value × mirrorMultiplier — mirrors tgbot's `weight × hs_bal`
   // expressed as a single up-front multiply.
   function getMirrorMultiplier() {
