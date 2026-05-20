@@ -28,7 +28,7 @@
 
   function logTradeGateDiagnostics({ source, pendingNotional, orderValue, eventType, details, always } = {}) {
     if (!always && !TRADE_GATE_DEBUG) return;
-    console.log("[Hyperscaled][TradeGate]", {
+    console.log("[HyperFunded][TradeGate]", {
       source: source || "unknown",
       shouldBlockTrade: HF.state.shouldBlockTrade,
       forcedTradeBlock: HF.state.forcedTradeBlock,
@@ -366,7 +366,7 @@
   }
 
   function checkAndBlockButtons() {
-    // HL orders are no longer blocked when they exceed the HS cap — the
+    // HL orders are no longer blocked when they exceed the HF cap — the
     // mirror-preview card surfaces the over-cap state as a warning and the
     // user can still confirm. Real blocks remain for unsupported pairs and
     // explicit `forceBlockTrade` calls (e.g., drawdown breach handling, if

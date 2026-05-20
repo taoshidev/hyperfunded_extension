@@ -12,7 +12,7 @@
  *
  *   3. Trade pairs → buildHlCoinToDisplay (the bridge between both sources)
  *
- *   4. Limits → applyTraderLimits (HS-scale: pair_usd / fundedSize × accountBalance)
+ *   4. Limits → applyTraderLimits (HF-scale: pair_usd / fundedSize × accountBalance)
  *      → guard fires when accountBalance = 0 (balance not yet loaded)
  *
  * Asserts that both pipelines produce consistent state and that the
@@ -124,15 +124,15 @@ describe('Validator data pipeline', () => {
     expect(openPos).toHaveLength(0);
   });
 
-  it('validator hsPositionsByCoin is empty (all positions closed)', () => {
-    // Post-refactor: HS positions derive strictly as size × price (sum of
+  it('validator hfPositionsByCoin is empty (all positions closed)', () => {
+    // Post-refactor: HF positions derive strictly as size × price (sum of
     // signed `q` × HL mid). With no open positions, the map is empty —
     // no `nl × account_size` fallback that would produce phantom values.
     const openPositions = transformed.positions.positions.filter(
       p => !p.is_closed_position && !p.close_ms
     );
-    const hsByCoin = deriveHsPositionsByCoin(openPositions, {}, {});
-    expect(Object.keys(hsByCoin)).toHaveLength(0);
+    const hfByCoin = deriveHsPositionsByCoin(openPositions, {}, {});
+    expect(Object.keys(hfByCoin)).toHaveLength(0);
   });
 
   it('both pipelines agree: 0 open exposure (empty state consistent)', () => {
@@ -148,8 +148,8 @@ describe('Validator data pipeline', () => {
 
 // ── Limits pipeline ───────────────────────────────────────────────────────────
 
-describe('Limits pipeline — applyTraderLimits with real limit values (HS-scale)', () => {
-  // Caps are HS-side now: (pair_usd / fundedSize) × accountBalance.
+describe('Limits pipeline — applyTraderLimits with real limit values (HF-scale)', () => {
+  // Caps are HF-side now: (pair_usd / fundedSize) × accountBalance.
   // Tests covering PnL-driven balance changes live in tests/unit/limits.test.js;
   // here we exercise the helper against real validator values.
   const FUNDED_SIZE = 100000;

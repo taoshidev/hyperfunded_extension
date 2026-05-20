@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Hyperscaled – Content script for hyperscaled.trade
+// HyperFunded – Content script for hyperfunded.co
 // Bridges communication between the registration page and the extension.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -8,7 +8,7 @@
 
   // Inject marker element so the page can detect the extension
   const marker = document.createElement("div");
-  marker.id = "hyperscaled-ext";
+  marker.id = "hyperfunded-ext";
   marker.dataset.version = VERSION;
   marker.style.display = "none";
   (document.documentElement || document.body).appendChild(marker);
@@ -27,13 +27,13 @@
       // Write to page localStorage so registration-flow can recover on reload
       try {
         window.localStorage.setItem(
-          "hs_registration_result",
+          "hf_registration_result",
           JSON.stringify(result)
         );
       } catch {}
       // Dispatch event for live React listeners
       document.dispatchEvent(
-        new CustomEvent("HYPERSCALED_PAYMENT_STATUS", {
+        new CustomEvent("HYPERFUNDED_PAYMENT_STATUS", {
           detail: {
             status: result.success ? "registered" : "registration_error",
             txHash: result.txHash || "",
@@ -56,16 +56,16 @@
     if (event.source !== window) return;
     if (!event.data || typeof event.data.type !== "string") return;
 
-    if (event.data.type === "HYPERSCALED_PING") {
+    if (event.data.type === "HYPERFUNDED_PING") {
       document.dispatchEvent(
-        new CustomEvent("HYPERSCALED_PONG", {
+        new CustomEvent("HYPERFUNDED_PONG", {
           detail: { version: VERSION },
         })
       );
       return;
     }
 
-    if (event.data.type === "HYPERSCALED_INIT_PAYMENT") {
+    if (event.data.type === "HYPERFUNDED_INIT_PAYMENT") {
       const data = event.data.data;
       if (!data) return;
 
@@ -74,7 +74,7 @@
         (response) => {
           if (chrome.runtime.lastError) {
             document.dispatchEvent(
-              new CustomEvent("HYPERSCALED_PAYMENT_STATUS", {
+              new CustomEvent("HYPERFUNDED_PAYMENT_STATUS", {
                 detail: {
                   status: "error",
                   error: chrome.runtime.lastError.message,
@@ -85,7 +85,7 @@
           }
           if (!response?.success) {
             document.dispatchEvent(
-              new CustomEvent("HYPERSCALED_PAYMENT_STATUS", {
+              new CustomEvent("HYPERFUNDED_PAYMENT_STATUS", {
                 detail: {
                   status: "error",
                   error: response?.error || "Failed to initiate payment",
@@ -104,7 +104,7 @@
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "hlPaymentUpdate") {
       document.dispatchEvent(
-        new CustomEvent("HYPERSCALED_PAYMENT_STATUS", {
+        new CustomEvent("HYPERFUNDED_PAYMENT_STATUS", {
           detail: {
             status: request.status,
             ...(request.data || {}),

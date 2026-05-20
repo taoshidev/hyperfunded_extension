@@ -1,6 +1,6 @@
-# Hyperscaled Chrome Extension
+# HyperFunded Chrome Extension
 
-A Chrome extension for active Hyperscaled traders to monitor their funded account, open positions, and challenge progress.
+A Chrome extension for active HyperFunded traders to monitor their funded account, open positions, and challenge progress.
 
 ## Features
 
@@ -18,12 +18,12 @@ A Chrome extension for active Hyperscaled traders to monitor their funded accoun
 3. Enable "Developer mode" in the top right corner
 4. Click "Load unpacked"
 5. Select the folder containing these extension files
-6. The Hyperscaled extension icon should appear in your Chrome toolbar
+6. The HyperFunded extension icon should appear in your Chrome toolbar
 7. **Allow notifications** when prompted for the best experience
 
 ## Usage
 
-Click the Hyperscaled icon in your Chrome toolbar to view your dashboard. The extension displays:
+Click the HyperFunded icon in your Chrome toolbar to view your dashboard. The extension displays:
 
 - Current funded account balance with daily performance
 - Challenge progress (current: 6.45% / 8% target)
@@ -45,7 +45,7 @@ Click the notification to open Hyperliquid in a new tab.
 
 - `manifest.json` - Extension configuration with notifications permission
 - `popup.html` - Main extension interface with animated liquid background
-- `popup.css` - Styling matching Hyperscaled brand
+- `popup.css` - Styling matching HyperFunded brand
 - `popup.js` - Interactive functionality and notification trigger
 - `background.js` - Service worker handling push notifications
 - `icon16.png`, `icon48.png`, `icon128.png` - Extension icons
@@ -56,12 +56,12 @@ To modify the extension:
 
 1. Edit the relevant files
 2. Go to `chrome://extensions/`
-3. Click the refresh icon on the Hyperscaled extension card
+3. Click the refresh icon on the HyperFunded extension card
 4. Click the extension icon to see your changes
 
 ## Notes
 
-This is a demo version showing sample data. In production, this would connect to the Hyperscaled API to display real-time account data and send notifications for important events like:
+This is a demo version showing sample data. In production, this would connect to the HyperFunded API to display real-time account data and send notifications for important events like:
 - Reaching profit targets
 - Approaching drawdown limits
 - New positions opened/closed

@@ -192,10 +192,10 @@ export function buildHlCoinToDisplay(tradePairsResponse) {
 
 // ── content/api.js — applyTraderLimits (from fetchTraderLimits) ───────────────
 //
-// Diff #2/#3 (2026-05): caps moved to the HS side. The validator returns
+// Diff #2/#3 (2026-05): caps moved to the HF side. The validator returns
 // USD figures in starting-account-size scale (e.g. $5,000 / $20,000 on a
 // $10,000 funded account). We derive the static ratio (pair_usd / fundedSize)
-// and apply it to the live HS balance, so caps track realised PnL.
+// and apply it to the live HF balance, so caps track realised PnL.
 //
 //   maxPositionPerPair = (pair_usd       / fundedSize) × accountBalance
 //   maxPortfolio       = (portfolio_usd  / fundedSize) × accountBalance
@@ -214,7 +214,7 @@ export function applyTraderLimits({ accountBalance, fundedSize, max_position_per
 
 // ── background/api.js — deriveHsPositionsByCoin ──────────────────────────────
 //
-// Strict size × price for the HS-side per-coin actuals. Mirror of
+// Strict size × price for the HF-side per-coin actuals. Mirror of
 // background/api.js deriveHsPositionsByCoin (Diff #5).
 
 export function deriveHsPositionsByCoin(positions, midPrices, friendlyToHl) {

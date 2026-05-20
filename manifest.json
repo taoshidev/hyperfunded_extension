@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Hyperscaled",
+  "name": "HyperFunded",
   "version": "1.0.13",
-  "description": "Track your Hyperscaled account and Hyperliquid positions",
+  "description": "Track your HyperFunded account and Hyperliquid positions",
   "action": {
     "default_icon": {
       "16": "icon16.png",
@@ -62,14 +62,14 @@
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://hyperscaled.trade/*", "https://*.hyperscaled.trade/*", "http://localhost/*"],
-      "js": ["content-hyperscaled.js"],
+      "matches": ["https://hyperfunded.co/*", "https://*.hyperfunded.co/*", "http://localhost/*"],
+      "js": ["content-hyperfunded.js"],
       "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["images/hyperscaled-logo.svg", "icon16.png", "icon48.png", "icon128.png"],
+      "resources": ["images/hyperfunded-logo.svg", "icon16.png", "icon48.png", "icon128.png"],
       "matches": ["https://app.hyperliquid.xyz/*", "https://app.hyperliquid-testnet.xyz/*"]
     }
   ],

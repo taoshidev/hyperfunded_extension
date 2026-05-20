@@ -2,7 +2,7 @@
  * Unit tests for pure business logic extracted from content scripts.
  * No DOM, no window.__HF — tests the logic in isolation.
  *
- * Refactor (Diff #4–#6, 2026-05): caps live on the HS side now, the mirror
+ * Refactor (Diff #4–#6, 2026-05): caps live on the HF side now, the mirror
  * multiplier uses live `accountBalance` (not frozen `fundedSize`), and the
  * oversize toast triggers on `HL × mirror > cap + 0.01` against
  * filledNotionalByPair (pending limit orders excluded).
@@ -34,7 +34,7 @@ function isReduceIntent(signedNotionalByPair, symbol, side, hlCoinToDisplay) {
 }
 
 // Mirrors content/toast.js evaluateOversizeState. Trigger is HL × mirror,
-// compared against HS-scale caps with a small +0.01 tolerance to avoid
+// compared against HF-scale caps with a small +0.01 tolerance to avoid
 // flicker at exact-fit positions. Filled-only — pending limit orders are
 // hypothetical and surfaced visually elsewhere, not via this toast.
 function evaluateOversizeState({ filledNotionalByPair, filledTotal, mirror, pairMax, totalMax }) {
@@ -46,7 +46,7 @@ function evaluateOversizeState({ filledNotionalByPair, filledTotal, mirror, pair
   return { anyPairOver, totalOver, breach: anyPairOver || totalOver, hlTotalTarget };
 }
 
-// Mirrors content/utils.js getMirrorMultiplier — the live HS↔HL conversion.
+// Mirrors content/utils.js getMirrorMultiplier — the live HF↔HL conversion.
 // HS_USD = HL_USD × (accountBalance / hlBalance). Both sides are live equity
 // figures, so the multiplier reflects current PnL (replaces the old
 // `fundedSize / hlBalance` which froze at the starting funded amount).
@@ -70,7 +70,7 @@ function barPendingBg(pct) {
 }
 
 // Cap resolution — mirrors effectiveMaxSingleUsd / effectiveMaxTotalUsd.
-// Caps are HS-USD now (= ratio × accountBalance); fallback is the live HS
+// Caps are HF-USD now (= ratio × accountBalance); fallback is the live HF
 // balance, not HL equity.
 function effectiveMaxSingleUsd({ limitsLoaded, maxPositionPerPair, accountBalance }) {
   if (limitsLoaded && maxPositionPerPair > 0) return maxPositionPerPair;
@@ -136,16 +136,16 @@ describe('isReduceIntent', () => {
 
 // ─── evaluateOversizeState ───────────────────────────────────────────────────
 //
-// Production trigger: HL filled × mirror > HS cap + 0.01. The +0.01 tolerance
+// Production trigger: HL filled × mirror > HF cap + 0.01. The +0.01 tolerance
 // avoids flickering at exact-fit positions where validator-clamping rounds
-// HS to the cap and HL × ratio rounds to cap-plus-epsilon.
+// HF to the cap and HL × ratio rounds to cap-plus-epsilon.
 
-describe('evaluateOversizeState — HL × mirror vs HS caps', () => {
+describe('evaluateOversizeState — HL × mirror vs HF caps', () => {
   it('no breach when projected HL × mirror is under the per-pair cap', () => {
     const result = evaluateOversizeState({
       filledNotionalByPair: { BTC: 500 },   // HL filled $500
       filledTotal: 500,
-      mirror: 1.0,                          // → projects to $500 HS
+      mirror: 1.0,                          // → projects to $500 HF
       pairMax: 5000,
       totalMax: 20000,
     });
@@ -167,7 +167,7 @@ describe('evaluateOversizeState — HL × mirror vs HS caps', () => {
   });
 
   it('exact-fit (HL × mirror == cap) does NOT trigger (+0.01 tolerance)', () => {
-    // Trader intentionally sized to the cap. Validator clamps HS to exactly
+    // Trader intentionally sized to the cap. Validator clamps HF to exactly
     // the cap. We don't want the toast firing in this happy-path scenario.
     const result = evaluateOversizeState({
       filledNotionalByPair: { BTC: 1000 },
@@ -236,7 +236,7 @@ describe('evaluateOversizeState — HL × mirror vs HS caps', () => {
     expect(result.breach).toBe(false);
   });
 
-  it('no breach when mirror is 0 (HS↔HL conversion unavailable)', () => {
+  it('no breach when mirror is 0 (HF↔HL conversion unavailable)', () => {
     const result = evaluateOversizeState({
       filledNotionalByPair: { BTC: 9999 },
       filledTotal: 9999,
@@ -263,17 +263,17 @@ describe('evaluateOversizeState — HL × mirror vs HS caps', () => {
 // ─── getMirrorMultiplier (live accountBalance / hlBalance) ───────────────────
 
 describe('getMirrorMultiplier — live accountBalance / hlBalance', () => {
-  it('flat PnL: $1,372 HL, $10,000 HS balance → ratio ≈ 7.29', () => {
+  it('flat PnL: $1,372 HL, $10,000 HF balance → ratio ≈ 7.29', () => {
     expect(getMirrorMultiplier(1372, 10000)).toBeCloseTo(7.29, 1);
   });
 
-  it('post-drawdown: HS balance dropped 10% → ratio drops correspondingly', () => {
+  it('post-drawdown: HF balance dropped 10% → ratio drops correspondingly', () => {
     // Funded $10k, balance $9k after 10% loss. HL still at $1372.
     // Multiplier = 9000/1372 ≈ 6.56 (used to be 7.29 with frozen fundedSize).
     expect(getMirrorMultiplier(1372, 9000)).toBeCloseTo(6.56, 1);
   });
 
-  it('post-profit: HS balance grew 10% → ratio rises correspondingly', () => {
+  it('post-profit: HF balance grew 10% → ratio rises correspondingly', () => {
     expect(getMirrorMultiplier(1372, 11000)).toBeCloseTo(8.02, 1);
   });
 
@@ -299,11 +299,11 @@ describe('getMirrorMultiplier — live accountBalance / hlBalance', () => {
     expect(getMirrorMultiplier(1372, NaN)).toBe(0);
   });
 
-  it('ratio < 1 when HL larger than HS balance (atypical)', () => {
+  it('ratio < 1 when HL larger than HF balance (atypical)', () => {
     expect(getMirrorMultiplier(10000, 5000)).toBe(0.5);
   });
 
-  it('large ratio for $100k HS account', () => {
+  it('large ratio for $100k HF account', () => {
     expect(getMirrorMultiplier(1372, 100000)).toBeCloseTo(72.9, 0);
   });
 
@@ -397,18 +397,18 @@ describe('effectiveMaxTotalUsd', () => {
   });
 });
 
-// ─── Cap math integration (HS-scale, end-to-end) ─────────────────────────────
+// ─── Cap math integration (HF-scale, end-to-end) ─────────────────────────────
 
-describe('cap math (integration) — HS-side caps + mirror multiplier', () => {
+describe('cap math (integration) — HF-side caps + mirror multiplier', () => {
   it('per-pair cap = (validator pair USD / fundedSize) × accountBalance', () => {
     // $10k funded, validator pair USD = $5k (50%), live balance $10,500
     const pairCap = (5000 / 10000) * 10500;
     expect(pairCap).toBe(5250);
   });
 
-  it('order would exceed cap: HL × mirror > HS pair cap', () => {
-    const pairMax = 5000;     // HS-USD cap
-    const mirror = 5.0;       // 1 HL$ → 5 HS$
+  it('order would exceed cap: HL × mirror > HF pair cap', () => {
+    const pairMax = 5000;     // HF-USD cap
+    const mirror = 5.0;       // 1 HL$ → 5 HF$
     const currentHl = 500;
     const newOrderHl = 600;
     const projectedHsPair = (currentHl + newOrderHl) * mirror;  // 1100 × 5 = 5500
@@ -418,7 +418,7 @@ describe('cap math (integration) — HS-side caps + mirror multiplier', () => {
   it('reduce order bypasses cap check: isReduceIntent stays true even when over cap', () => {
     const symbol = 'BTC';
     const orderSide = 'sell';
-    // signedNotionalByPair stores HS-side signed exposure (validator-derived)
+    // signedNotionalByPair stores HF-side signed exposure (validator-derived)
     // OR HL-side signed (background extractor). Either way, sign = direction.
     const signedNotionalByPair = { BTC: 8000 };  // positive = long
     expect(isReduceIntent(signedNotionalByPair, symbol, orderSide)).toBe(true);
@@ -514,7 +514,7 @@ describe('evaluateOversizeState — xyz pairs', () => {
     const result = evaluateOversizeState({
       filledNotionalByPair: { WTIOIL: 1100 },   // HL filled $1100
       filledTotal: 1100,
-      mirror: 5.0,                              // → projects $5500 HS
+      mirror: 5.0,                              // → projects $5500 HF
       pairMax: 5000,
       totalMax: 20000,
     });

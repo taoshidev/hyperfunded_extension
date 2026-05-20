@@ -33,7 +33,7 @@
     const limitScope = constraint === "per-pair" ? "single-asset" : "portfolio";
     const heading = "Why this was blocked";
     const what = "You tried to place a size above your current " + limitScope + " capacity.";
-    const why = "Hyperscaled enforces this cap to keep your account inside funded-challenge risk limits.";
+    const why = "HyperFunded enforces this cap to keep your account inside funded-challenge risk limits.";
     const how = "Lower size to <b>" + formatSizeForToast(clampedSize, sizeUnit) + " " + sizeUnit +
       "</b> or less, or close/reduce existing positions to free " + limitScope + " capacity.";
     const capacity = "Remaining capacity right now: <b>" + formatSizeForToast(allowed, sizeUnit) + " " + sizeUnit + "</b>.";
@@ -91,12 +91,12 @@
     if (!isBlockedOnly) blockedToastDetailsExpanded = false;
 
     let messageHtml = "Order exceeds your <b>" + constraint + " position size limit</b>.";
-    let titleHtml = "Hyperscaled: Size clamped to " + formatSizeForToast(clampedSize, sizeUnit) + " " + sizeUnit;
+    let titleHtml = "HyperFunded: Size clamped to " + formatSizeForToast(clampedSize, sizeUnit) + " " + sizeUnit;
     let iconHtml = "\u26a0\ufe0f";
     let variantClass = "hf-toast hf-toast--alert";
 
     if (allowed === 0) {
-       titleHtml = "Hyperscaled: Order Prevented";
+       titleHtml = "HyperFunded: Order Prevented";
        messageHtml =
          "No remaining capacity within your <b>" + constraint + "</b> position limit.";
        if (perAssetBuyContext) {
@@ -359,7 +359,7 @@
       '<div class="hf-toast-icon">' + iconHtml + '</div>' +
       '<div class="hf-toast-content">' +
         '<div class="hf-toast-title">Unsupported Pair</div>' +
-        '<div class="hf-toast-msg"><b>' + (symbol || "This pair") + '</b> is not supported by Hyperscaled. Switch to a supported pair to trade.</div>' +
+        '<div class="hf-toast-msg"><b>' + (symbol || "This pair") + '</b> is not supported by HyperFunded. Switch to a supported pair to trade.</div>' +
       '</div>' +
       '<button class="hf-toast-close" type="button" aria-label="Dismiss">' +
         '<svg width="10" height="10" viewBox="0 0 10 10" fill="none">' +
@@ -438,12 +438,12 @@
   // resolves — call evaluateOversizeState() after every ACCOUNT update.
   function computeOverCapInfo() {
     // Trigger semantics: toast fires when HL exposure × ratio exceeds the
-    // HS cap (i.e. validator clamped HS to cap). This distinguishes
+    // HF cap (i.e. validator clamped HF to cap). This distinguishes
     // "intentionally at-cap" (HL fits exactly) from "validator-clamped due
     // to HL excess" — only the latter warrants a warning.
     //
-    // Display values: actual capped HS values from the validator (size ×
-    // current price, sourced from ACCOUNT.hsPositionsByCoin). The HL
+    // Display values: actual capped HF values from the validator (size ×
+    // current price, sourced from ACCOUNT.hfPositionsByCoin). The HL
     // projection (HL × ratio, the "would-be" if uncapped) is shown in
     // expanded details so traders can see how much HL needs to reduce.
     const { fmt, effectiveMaxSingleUsd, effectiveMaxTotalUsd, getMirrorMultiplier } = HF.utils;
@@ -451,7 +451,7 @@
     const totalMax = effectiveMaxTotalUsd();
     const mirror = getMirrorMultiplier();
 
-    const hsPairs = ACCOUNT.hsPositionsByCoin || {};
+    const hfPairs = ACCOUNT.hfPositionsByCoin || {};
     const hlByPair = ACCOUNT.filledNotionalByPair || {};
     const hlTotalTarget = (Number(ACCOUNT.filledTotal) || 0) * mirror;
 
@@ -460,7 +460,7 @@
         const key = String(sym).toUpperCase();
         return {
           sym: key,
-          value: Math.abs(Number(hsPairs[key]?.value || hsPairs[sym]?.value) || 0),
+          value: Math.abs(Number(hfPairs[key]?.value || hfPairs[sym]?.value) || 0),
           hlTarget: (Number(hlByPair[sym]) || 0) * mirror,
         };
       })
@@ -477,18 +477,18 @@
       const worst = overAssets[0];
       const more = overAssets.length > 1 ? ` (+${overAssets.length - 1} more over cap)` : '';
       lines.push(
-        '<b>' + worst.sym + '</b> HS pair is at the cap of <b>' + fmt(pairMax) + '</b>' + more + '. ' +
-        'HL exposure projects to <b>' + fmt(worst.hlTarget) + '</b> in HS terms.'
+        '<b>' + worst.sym + '</b> HF pair is at the cap of <b>' + fmt(pairMax) + '</b>' + more + '. ' +
+        'HL exposure projects to <b>' + fmt(worst.hlTarget) + '</b> in HF terms.'
       );
     }
     if (totalOver) {
       lines.push(
-        'HS portfolio is at the cap of <b>' + fmt(totalMax) + '</b>. ' +
-        'Total HL exposure projects to <b>' + fmt(hlTotalTarget) + '</b> in HS terms.'
+        'HF portfolio is at the cap of <b>' + fmt(totalMax) + '</b>. ' +
+        'Total HL exposure projects to <b>' + fmt(hlTotalTarget) + '</b> in HF terms.'
       );
     }
     lines.push('HL trading is unaffected.');
-    lines.push('HS will resume tracking HL once HL exposure drops below the cap.');
+    lines.push('HF will resume tracking HL once HL exposure drops below the cap.');
     return lines.map(l => '<div class="hf-toast-detail-line">' + l + '</div>').join('');
   }
 
@@ -497,7 +497,7 @@
     const { fmt, overAssets, pairMax, totalMax, totalOver, hlTotalTarget } = info;
 
     // Compact one-line summary: worst pair, or portfolio if only that breached.
-    // "HS at cap $X" reports the actual capped state; "(HL +$Y)" surfaces
+    // "HF at cap $X" reports the actual capped state; "(HL +$Y)" surfaces
     // the magnitude of the HL excess so traders know how much to reduce.
     let summary;
     if (overAssets.length > 0) {
@@ -505,18 +505,18 @@
       const extra = overAssets.length > 1 ? ' +' + (overAssets.length - 1) : '';
       const excess = Math.max(0, w.hlTarget - pairMax);
       const excessSuffix = excess > 0.01 ? ' (HL +' + fmt(excess) + ')' : '';
-      summary = w.sym + ' HS at cap ' + fmt(pairMax) + excessSuffix + extra;
+      summary = w.sym + ' HF at cap ' + fmt(pairMax) + excessSuffix + extra;
     } else {
       const excess = Math.max(0, hlTotalTarget - totalMax);
       const excessSuffix = excess > 0.01 ? ' (HL +' + fmt(excess) + ')' : '';
-      summary = 'Portfolio HS at cap ' + fmt(totalMax) + excessSuffix;
+      summary = 'Portfolio HF at cap ' + fmt(totalMax) + excessSuffix;
     }
 
     const detailsHtml = buildOversizeDetailsHtml(info);
 
     const innerHtml =
       '<span class="hf-toast-icon" aria-hidden="true">⚠</span>' +
-      '<span class="hf-toast-summary">Over HS limit · ' + summary + '</span>' +
+      '<span class="hf-toast-summary">Over HF limit · ' + summary + '</span>' +
       '<button type="button" class="hf-toast-expand" aria-expanded="false" title="Details">▾</button>' +
       '<button type="button" class="hf-toast-close" title="Dismiss" aria-label="Dismiss">×</button>' +
       '<div class="hf-toast-details" hidden>' + detailsHtml + '</div>';
@@ -587,7 +587,7 @@
     const mirror = getMirrorMultiplier();
     if (!(mirror > 0)) return;
     // Trigger by HL exposure × ratio against caps. When HL × ratio > cap,
-    // validator has clamped actual HS to cap — that's the breach worth
+    // validator has clamped actual HF to cap — that's the breach worth
     // warning about. Filled-only (pending limit orders are hypothetical
     // and may never fill; they're surfaced visually elsewhere). The
     // small +0.01 tolerance avoids flickering at exact-fit positions.

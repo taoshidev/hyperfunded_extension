@@ -37,7 +37,7 @@ function formatPairLabel(coin) {
 }
 
 // Project one pair's after-fill state, given current SIGNED exposure (long > 0,
-// short < 0) and (buy-only) pending notional, both in HS units. Mirrors the
+// short < 0) and (buy-only) pending notional, both in HF units. Mirrors the
 // branch logic in content/mirror-preview.js: add / reduce / flip / new.
 //
 // Pending feeds in as a positive scalar because background's
@@ -98,7 +98,7 @@ export function applyValidatorData(result, state) {
 
     const accountSizeData = result.account_size_data;
 
-    // Live HS balance (drawdown-adjusted) — base for limits and mirror sizing.
+    // Live HF balance (drawdown-adjusted) — base for limits and mirror sizing.
     // When the validator hasn't returned it we show "--" downstream rather
     // than fall back to accountSize, which is frozen at the funded amount and
     // would silently produce wrong limit/PnL numbers after any P&L.
@@ -115,16 +115,16 @@ export function applyValidatorData(result, state) {
     const upnlField = parseFloat(state.totalUnrealizedPnl);
     const totalUnrealizedPnl = Number.isFinite(upnlField) ? upnlField : null;
 
-    // HS per-coin position values come pre-computed from background as
+    // HF per-coin position values come pre-computed from background as
     // strict size × price (sum of signed `q` × current HL mid price).
-    // Used below for the HS row (actual capped values), not HL × ratio.
-    state.hsPositionsByCoin = (result.hsPositionsByCoin && typeof result.hsPositionsByCoin === 'object')
-      ? result.hsPositionsByCoin : {};
+    // Used below for the HF row (actual capped values), not HL × ratio.
+    state.hfPositionsByCoin = (result.hfPositionsByCoin && typeof result.hfPositionsByCoin === 'object')
+      ? result.hfPositionsByCoin : {};
 
     const cp = result.challenge_period || {};
     const dd = result.drawdown || {};
     const currentEquity = parseFloat(dd.current_equity) || 1;
-    // HS Account balance must come from account_size_data.balance — that is
+    // HF Account balance must come from account_size_data.balance — that is
     // realized PnL only (per the validator's transform: balance ≈ account_size
     // + total_realized_pnl − fees). Falling back to accountSize × currentEquity
     // mixes in unrealized PnL via current_equity's ratio, producing a wrong
@@ -230,16 +230,16 @@ export function applyValidatorData(result, state) {
             `EOD trailing ${trailingBufferText} (${trailingBufferPct.toFixed(2)}%) buffer`;
     }
 
-    // ── Mirror ratio (used by HS capacity block) ───────────────────────────────
-    // Numerator is live HS balance (drawdown-adjusted), not starting size, so
+    // ── Mirror ratio (used by HF capacity block) ───────────────────────────────
+    // Numerator is live HF balance (drawdown-adjusted), not starting size, so
     // the ratio reflects the trader's current equity rather than what they
     // originally funded. Falls to 0 when accountBalance is unavailable —
-    // downstream HS-column UI shows "--" via the existing `r > 0` checks.
+    // downstream HF-column UI shows "--" via the existing `r > 0` checks.
     const hlBal = Number(state.hlBalance) || 0;
     const mirrorRatio = (hlBal > 0 && accountBalance != null) ? accountBalance / hlBal : 0;
 
     // HL pending orders are still needed: validator records pending only at
-    // fill time, so projecting "what would HS look like if all HL pending
+    // fill time, so projecting "what would HF look like if all HL pending
     // fills" requires the HL resting-order notional × ratio.
     const pendingByPairHl = state.pendingNotionalByPair || {};
     const pendingTotalHl  = Number(state.pendingTotal) || 0;
@@ -247,70 +247,70 @@ export function applyValidatorData(result, state) {
     // The "HL" capacity block was removed — HL has no caps post-faca41c, and
     // a bar with no real cap was misleading. Anything HL-related the trader
     // needs is on HL's own UI (or the injected mirror preview at order entry).
-    // The HS section below is the only capacity surface that maps to a real
+    // The HF section below is the only capacity surface that maps to a real
     // validator-enforced limit.
 
-    // ── Trading Capacity (Hyperscaled) — validator-enforced caps ────────────
+    // ── Trading Capacity (HyperFunded) — validator-enforced caps ────────────
     // Every $ figure in this section depends on mirrorRatio. When it is 0
-    // (accountBalance unavailable) we cannot compute honest HS values, so
+    // (accountBalance unavailable) we cannot compute honest HF values, so
     // render "--" rather than a misleading $0.00.
     const r = mirrorRatio;
-    const hsAvailable = r > 0;
-    // HS-side caps track live accountBalance. The validator's static USD
+    const hfAvailable = r > 0;
+    // HF-side caps track live accountBalance. The validator's static USD
     // figures (max_*_usd = ratio × starting account_size) are converted to
     // the equivalent leverage ratio and re-applied to live accountBalance.
-    let hsMaxPerPair = 0;
-    let hsMaxTotal   = 0;
-    if (hsAvailable && state.traderLimits) {
+    let hfMaxPerPair = 0;
+    let hfMaxTotal   = 0;
+    if (hfAvailable && state.traderLimits) {
         const backendPair = parseFloat(state.traderLimits.max_position_per_pair_usd) || 0;
         const backendTotal = parseFloat(state.traderLimits.max_portfolio_usd) || 0;
         const backendSize = parseFloat(state.traderLimits.account_size) || accountSize || 0;
-        if (backendSize > 0 && backendPair > 0)  hsMaxPerPair = (backendPair  / backendSize) * accountBalance;
-        if (backendSize > 0 && backendTotal > 0) hsMaxTotal   = (backendTotal / backendSize) * accountBalance;
+        if (backendSize > 0 && backendPair > 0)  hfMaxPerPair = (backendPair  / backendSize) * accountBalance;
+        if (backendSize > 0 && backendTotal > 0) hfMaxTotal   = (backendTotal / backendSize) * accountBalance;
     }
-    // ── HS row per-pair entries: filled from validator (actual size × price,
+    // ── HF row per-pair entries: filled from validator (actual size × price,
     // already capped by validator at fill time), pending projected from HL
     // resting orders × ratio (since HL pending hasn't filled, validator has
     // no record of it yet). Union the keysets so a coin that's open on the
     // validator but momentarily missing on the HL pending list still shows.
-    const hsPositionsMap = state.hsPositionsByCoin || {};
-    const hsPerAssetSyms = new Set([
-        ...Object.keys(hsPositionsMap),
+    const hfPositionsMap = state.hfPositionsByCoin || {};
+    const hfPerAssetSyms = new Set([
+        ...Object.keys(hfPositionsMap),
         ...Object.keys(pendingByPairHl),
     ]);
-    const hsPerAssetEntries = Array.from(hsPerAssetSyms)
+    const hfPerAssetEntries = Array.from(hfPerAssetSyms)
         .map((sym) => {
-            const pos = hsPositionsMap[sym];
+            const pos = hfPositionsMap[sym];
             const mag = Math.abs(Number(pos?.value) || 0);
             const qty = Number(pos?.quantity) || 0;
             const sideSign = qty >= 0 ? 1 : -1;
             return {
                 sym: String(sym).toUpperCase(),
-                hsFilled: mag,
-                hsSignedFilled: sideSign * mag,
-                hsPending: hsAvailable ? (Number(pendingByPairHl[sym]) || 0) * r : 0,
+                hfFilled: mag,
+                hfSignedFilled: sideSign * mag,
+                hfPending: hfAvailable ? (Number(pendingByPairHl[sym]) || 0) * r : 0,
             };
         })
-        .filter(({ hsFilled, hsPending }) => hsFilled + hsPending > 0)
-        .sort((a, b) => (b.hsFilled + b.hsPending) - (a.hsFilled + a.hsPending));
+        .filter(({ hfFilled, hfPending }) => hfFilled + hfPending > 0)
+        .sort((a, b) => (b.hfFilled + b.hfPending) - (a.hfFilled + a.hfPending));
 
-    const hsLargestPairNotional = hsPerAssetEntries.length > 0
-        ? Math.max(...hsPerAssetEntries.map(e => e.hsFilled))
+    const hfLargestPairNotional = hfPerAssetEntries.length > 0
+        ? Math.max(...hfPerAssetEntries.map(e => e.hfFilled))
         : 0;
-    const hsFilledTotal = Object.values(hsPositionsMap).reduce(
+    const hfFilledTotal = Object.values(hfPositionsMap).reduce(
         (s, e) => s + Math.abs(Number(e?.value) || 0), 0);
-    const hsPendingTotal = hsAvailable ? pendingTotalHl * r : 0;
+    const hfPendingTotal = hfAvailable ? pendingTotalHl * r : 0;
 
-    const hsBasisRatioEl = document.getElementById('hsBasisRatio');
-    const hsBasisValueEl = document.getElementById('hsBasisValue');
-    const hsBasisHlEquityEl = document.getElementById('hsBasisHlEquity');
-    if (hsBasisRatioEl) hsBasisRatioEl.textContent = hsAvailable ? r.toFixed(1) + 'x' : '--';
-    if (hsBasisValueEl) hsBasisValueEl.textContent = accountBalance == null ? '--' : fmtUsd(accountBalance);
-    if (hsBasisHlEquityEl) hsBasisHlEquityEl.textContent = hlBal > 0 ? fmtUsd(hlBal) : '--';
+    const hfBasisRatioEl = document.getElementById('hfBasisRatio');
+    const hfBasisValueEl = document.getElementById('hfBasisValue');
+    const hfBasisHlEquityEl = document.getElementById('hfBasisHlEquity');
+    if (hfBasisRatioEl) hfBasisRatioEl.textContent = hfAvailable ? r.toFixed(1) + 'x' : '--';
+    if (hfBasisValueEl) hfBasisValueEl.textContent = accountBalance == null ? '--' : fmtUsd(accountBalance);
+    if (hfBasisHlEquityEl) hfBasisHlEquityEl.textContent = hlBal > 0 ? fmtUsd(hlBal) : '--';
 
-    const hsPerPairRemainingEl = document.getElementById('hsPerPairRemaining');
-    if (hsPerPairRemainingEl) hsPerPairRemainingEl.textContent = hsAvailable
-        ? fmtUsd(Math.max(hsMaxPerPair - hsLargestPairNotional, 0))
+    const hfPerPairRemainingEl = document.getElementById('hfPerPairRemaining');
+    if (hfPerPairRemainingEl) hfPerPairRemainingEl.textContent = hfAvailable
+        ? fmtUsd(Math.max(hfMaxPerPair - hfLargestPairNotional, 0))
         : '--';
 
     // Portfolio-level room — passed to per-pair projection so each pair's
@@ -318,24 +318,24 @@ export function applyValidatorData(result, state) {
     // (add / reduce / flip) handles pending direction vs current position
     // direction so a buy pending against a short doesn't double-count as
     // additional exposure — it offsets first.
-    const portfolioRoom = hsAvailable ? Math.max(0, hsMaxTotal - hsFilledTotal) : 0;
+    const portfolioRoom = hfAvailable ? Math.max(0, hfMaxTotal - hfFilledTotal) : 0;
 
     // Project once per pair so per-asset and total rows stay consistent.
-    const hsProjections = hsAvailable
-        ? hsPerAssetEntries.map((e) => ({
+    const hfProjections = hfAvailable
+        ? hfPerAssetEntries.map((e) => ({
             ...e,
-            ...projectPairAfterFill(e.hsSignedFilled, e.hsPending, hsMaxPerPair, portfolioRoom),
+            ...projectPairAfterFill(e.hfSignedFilled, e.hfPending, hfMaxPerPair, portfolioRoom),
         }))
         : [];
 
-    const hsPerPairSubBarsEl = document.getElementById('hsPerPairSubBars');
-    if (hsPerPairSubBarsEl) {
-        if (hsProjections.length === 0) {
-            hsPerPairSubBarsEl.innerHTML = '';
+    const hfPerPairSubBarsEl = document.getElementById('hfPerPairSubBars');
+    if (hfPerPairSubBarsEl) {
+        if (hfProjections.length === 0) {
+            hfPerPairSubBarsEl.innerHTML = '';
         } else {
-            hsPerPairSubBarsEl.innerHTML = hsProjections.map(({ sym, hsFilled, branch, currentMag, afterMag, pairCapBinds, portCapBinds }) => {
-                const filledPct = hsMaxPerPair > 0 ? Math.min((currentMag / hsMaxPerPair) * 100, 100) : 0;
-                const afterPct  = hsMaxPerPair > 0 ? Math.min((afterMag   / hsMaxPerPair) * 100, 100) : 0;
+            hfPerPairSubBarsEl.innerHTML = hfProjections.map(({ sym, hfFilled, branch, currentMag, afterMag, pairCapBinds, portCapBinds }) => {
+                const filledPct = hfMaxPerPair > 0 ? Math.min((currentMag / hfMaxPerPair) * 100, 100) : 0;
+                const afterPct  = hfMaxPerPair > 0 ? Math.min((afterMag   / hfMaxPerPair) * 100, 100) : 0;
 
                 // Bar segments (mirror-preview branch logic):
                 //   add/new : solid = current,   overlay = after − current  (growth)
@@ -358,7 +358,7 @@ export function applyValidatorData(result, state) {
 
                 const safeSymbol = sym.replace(/[^A-Z0-9._-]/g, '');
                 const display    = formatPairLabel(safeSymbol);
-                const isOver     = hsMaxPerPair > 0 && currentMag > hsMaxPerPair;
+                const isOver     = hfMaxPerPair > 0 && currentMag > hfMaxPerPair;
 
                 const fillBg     = isOver ? 'rgb(239, 68, 68)' : capColor(solidPct);
                 const pendingBg  = isReduce ? REDUCE_STRIPE_POPUP : pendingStripeBg(isOver ? 100 : afterPct);
@@ -388,41 +388,41 @@ export function applyValidatorData(result, state) {
                             <div class="capacity-asset-fill" style="width: ${solidPct.toFixed(1)}%; background: ${fillBg};"></div>
                             <div class="capacity-asset-fill capacity-asset-fill--pending" style="width: ${overlayPct.toFixed(1)}%; left: ${solidPct.toFixed(1)}%; background: ${pendingBg};"></div>
                         </div>
-                        <span class="${valueCls}">${fmtUsd(currentMag)}${pendingMid} / ${fmtUsd(hsMaxPerPair)}</span>
+                        <span class="${valueCls}">${fmtUsd(currentMag)}${pendingMid} / ${fmtUsd(hfMaxPerPair)}</span>
                     </div>
                 `;
             }).join('');
         }
     }
 
-    const hsPerPairBreakdownEl = document.getElementById('hsPerPairBreakdown');
-    if (hsPerPairBreakdownEl) {
-        if (!hsAvailable) {
-            hsPerPairBreakdownEl.textContent = '--';
-        } else if (hsPerAssetEntries.length === 0) {
-            hsPerPairBreakdownEl.textContent = 'No open positions';
+    const hfPerPairBreakdownEl = document.getElementById('hfPerPairBreakdown');
+    if (hfPerPairBreakdownEl) {
+        if (!hfAvailable) {
+            hfPerPairBreakdownEl.textContent = '--';
+        } else if (hfPerAssetEntries.length === 0) {
+            hfPerPairBreakdownEl.textContent = 'No open positions';
         } else {
-            hsPerPairBreakdownEl.textContent = `${hsPerAssetEntries.length} asset${hsPerAssetEntries.length > 1 ? 's' : ''} with open exposure`;
+            hfPerPairBreakdownEl.textContent = `${hfPerAssetEntries.length} asset${hfPerAssetEntries.length > 1 ? 's' : ''} with open exposure`;
         }
     }
 
-    const hsCapacityUsedEl = document.getElementById('hsCapacityUsed');
-    const hsCapacityMaxEl = document.getElementById('hsCapacityMax');
-    const hsCapacityFillEl = document.getElementById('hsCapacityFill');
-    const hsCapacityRemainingEl = document.getElementById('hsCapacityRemaining');
-    const hsTotalOver = hsAvailable && hsMaxTotal > 0 && hsFilledTotal > hsMaxTotal;
+    const hfCapacityUsedEl = document.getElementById('hfCapacityUsed');
+    const hfCapacityMaxEl = document.getElementById('hfCapacityMax');
+    const hfCapacityFillEl = document.getElementById('hfCapacityFill');
+    const hfCapacityRemainingEl = document.getElementById('hfCapacityRemaining');
+    const hfTotalOver = hfAvailable && hfMaxTotal > 0 && hfFilledTotal > hfMaxTotal;
 
     // Aggregate per-pair projections for the total row so reduce/flip pairs
     // don't inflate the bar by adding raw buy notional on top of the short.
-    const hsAfterTotalRaw = hsProjections.reduce((s, p) => s + p.afterMag, 0);
-    const hsAfterTotal = hsAvailable && hsMaxTotal > 0 ? Math.min(hsAfterTotalRaw, hsMaxTotal) : hsAfterTotalRaw;
-    const totalDelta = hsAfterTotal - hsFilledTotal;
+    const hfAfterTotalRaw = hfProjections.reduce((s, p) => s + p.afterMag, 0);
+    const hfAfterTotal = hfAvailable && hfMaxTotal > 0 ? Math.min(hfAfterTotalRaw, hfMaxTotal) : hfAfterTotalRaw;
+    const totalDelta = hfAfterTotal - hfFilledTotal;
     const totalShrinks = totalDelta < -0.01;
     const totalGrows = totalDelta > 0.01;
-    const totalCapped = hsProjections.some((p) => p.pairCapBinds || p.portCapBinds);
+    const totalCapped = hfProjections.some((p) => p.pairCapBinds || p.portCapBinds);
 
-    const totalFilledPct = hsAvailable && hsMaxTotal > 0 ? Math.min((hsFilledTotal / hsMaxTotal) * 100, 100) : 0;
-    const totalAfterPct  = hsAvailable && hsMaxTotal > 0 ? Math.min((hsAfterTotal  / hsMaxTotal) * 100, 100) : 0;
+    const totalFilledPct = hfAvailable && hfMaxTotal > 0 ? Math.min((hfFilledTotal / hfMaxTotal) * 100, 100) : 0;
+    const totalAfterPct  = hfAvailable && hfMaxTotal > 0 ? Math.min((hfAfterTotal  / hfMaxTotal) * 100, 100) : 0;
 
     let totalSolidPct, totalOverlayPct, totalIsReduce;
     if (totalShrinks) {
@@ -435,43 +435,43 @@ export function applyValidatorData(result, state) {
         totalIsReduce = false;
     }
 
-    if (hsCapacityUsedEl) {
-        if (!hsAvailable) {
-            hsCapacityUsedEl.textContent = '--';
+    if (hfCapacityUsedEl) {
+        if (!hfAvailable) {
+            hfCapacityUsedEl.textContent = '--';
         } else {
-            const pendingTextColor = capColor(hsTotalOver ? 100 : totalAfterPct);
+            const pendingTextColor = capColor(hfTotalOver ? 100 : totalAfterPct);
             const cappedTag = totalCapped ? ' (capped)' : '';
             let pendingMid = '';
             if (Math.abs(totalDelta) > 0.01) {
                 const sign = totalDelta >= 0 ? '+' : '−';
                 pendingMid = ` <span class="capacity-asset-pending" style="color:${pendingTextColor}">${sign} ${fmtUsd(Math.abs(totalDelta))} pending${cappedTag}</span>`;
             }
-            hsCapacityUsedEl.innerHTML = `${fmtUsd(hsFilledTotal)}${pendingMid}`;
+            hfCapacityUsedEl.innerHTML = `${fmtUsd(hfFilledTotal)}${pendingMid}`;
         }
     }
-    if (hsCapacityMaxEl) hsCapacityMaxEl.textContent = hsAvailable ? fmtUsd(hsMaxTotal) : '--';
-    if (hsCapacityFillEl) {
-        hsCapacityFillEl.style.width = totalSolidPct + '%';
-        hsCapacityFillEl.style.background = hsTotalOver ? 'rgb(239, 68, 68)' : capColor(totalSolidPct);
-        hsCapacityFillEl.classList.toggle('capacity-fill--over', hsTotalOver);
-        const hsTrackEl = hsCapacityFillEl.parentElement;
-        if (hsTrackEl) hsTrackEl.classList.toggle('capacity-bar--over', hsTotalOver);
-        let pendingEl = hsCapacityFillEl.parentElement?.querySelector('.capacity-fill--pending');
-        if (hsCapacityFillEl.parentElement) {
+    if (hfCapacityMaxEl) hfCapacityMaxEl.textContent = hfAvailable ? fmtUsd(hfMaxTotal) : '--';
+    if (hfCapacityFillEl) {
+        hfCapacityFillEl.style.width = totalSolidPct + '%';
+        hfCapacityFillEl.style.background = hfTotalOver ? 'rgb(239, 68, 68)' : capColor(totalSolidPct);
+        hfCapacityFillEl.classList.toggle('capacity-fill--over', hfTotalOver);
+        const hfTrackEl = hfCapacityFillEl.parentElement;
+        if (hfTrackEl) hfTrackEl.classList.toggle('capacity-bar--over', hfTotalOver);
+        let pendingEl = hfCapacityFillEl.parentElement?.querySelector('.capacity-fill--pending');
+        if (hfCapacityFillEl.parentElement) {
             if (!pendingEl) {
                 pendingEl = document.createElement('div');
                 pendingEl.className = 'capacity-fill capacity-fill--pending';
-                hsCapacityFillEl.parentElement.appendChild(pendingEl);
+                hfCapacityFillEl.parentElement.appendChild(pendingEl);
             }
             pendingEl.style.width = totalOverlayPct + '%';
             pendingEl.style.left = totalSolidPct + '%';
             pendingEl.style.background = totalIsReduce
                 ? REDUCE_STRIPE_POPUP
-                : pendingStripeBg(hsTotalOver ? 100 : totalAfterPct);
+                : pendingStripeBg(hfTotalOver ? 100 : totalAfterPct);
         }
     }
-    if (hsCapacityRemainingEl) hsCapacityRemainingEl.textContent = hsAvailable
-        ? fmtUsd(Math.max(hsMaxTotal - hsAfterTotal, 0))
+    if (hfCapacityRemainingEl) hfCapacityRemainingEl.textContent = hfAvailable
+        ? fmtUsd(Math.max(hfMaxTotal - hfAfterTotal, 0))
         : '--';
 
     showDashboard();

@@ -1,6 +1,6 @@
 /**
  * Tests for validator API response transformation (background/api.js) and
- * HS position derivation (deriveHsPositionsByCoin).
+ * HF position derivation (deriveHsPositionsByCoin).
  *
  * Covers:
  *  - transformTraderResponse: raw dashboard wire format → normalised shape
@@ -15,7 +15,7 @@
  *  - Challenge vs funded mode detection
  *
  * Refactor note (2026-05): the validator's `net_leverage × account_size`
- * is no longer used to derive notional or PnL. HS pair value comes
+ * is no longer used to derive notional or PnL. HF pair value comes
  * exclusively from `|sum of signed q| × HL mid price`. Tests for the
  * old `extractPositionNotional` were removed in this pass.
  */

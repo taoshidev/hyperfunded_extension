@@ -1,5 +1,5 @@
 /**
- * Integration tests — Hyperscaled testnet validator API.
+ * Integration tests — HyperFunded testnet validator API.
  *
  * Verifies:
  *   - /hl-traders/{address} returns expected shape + real account data
@@ -178,15 +178,15 @@ describe('transformTraderResponse — open position aggregation', () => {
     expect(openPositions).toHaveLength(0);
   });
 
-  it('hsPositionsByCoin is empty when all positions are closed', () => {
-    // Post-refactor (Diff #4/#5): HS position values come from
+  it('hfPositionsByCoin is empty when all positions are closed', () => {
+    // Post-refactor (Diff #4/#5): HF position values come from
     // deriveHsPositionsByCoin (size × price), never `nl × account_size`.
     // With no open positions, the map is empty.
     const openPositions = transformed.positions.positions.filter(
       p => !p.is_closed_position && !p.close_ms
     );
-    const hsByCoin = deriveHsPositionsByCoin(openPositions, {}, {});
-    expect(Object.keys(hsByCoin)).toHaveLength(0);
+    const hfByCoin = deriveHsPositionsByCoin(openPositions, {}, {});
+    expect(Object.keys(hfByCoin)).toHaveLength(0);
   });
 });
 
