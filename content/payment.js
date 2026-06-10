@@ -54,7 +54,7 @@
         const toast = document.createElement("div");
         toast.className = "hf-toast hf-toast--info hf-toast-show";
         toast.innerHTML =
-          '<div class="hf-toast-icon"><img src="' + chrome.runtime.getURL("icon48.png") + '" style="height: 16px; width: 16px; margin-top: 2px; opacity: 0.9;" alt="HyperFunded" /></div>' +
+          '<div class="hf-toast-icon"><img src="' + chrome.runtime.getURL("icon48.png") + '" style="height: 16px; width: 16px; margin-top: 2px; opacity: 0.9;" alt="Hyperstack" /></div>' +
           '<div class="hf-toast-content">' +
             '<div class="hf-toast-title">Registration Payment</div>' +
             '<div class="hf-toast-msg">Review the transfer details and confirm to complete your payment.</div>' +
@@ -79,7 +79,7 @@
 
       if (!document.body.contains(destInput) || destInput.offsetParent === null) {
         clearInterval(watchInterval);
-        console.log("[HyperFunded] Send modal closed — payment likely submitted");
+        console.log("[Hyperstack] Send modal closed — payment likely submitted");
         HF.api.getUserAddress()
           .then((senderAddress) => {
             chrome.runtime.sendMessage({

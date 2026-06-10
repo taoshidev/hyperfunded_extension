@@ -104,9 +104,9 @@ export function initEventsPagination() {
 }
 
 export async function refreshEvents(storedAddress) {
-    console.log('[HyperFunded Popup] refreshEvents called, storedAddress:', storedAddress);
+    console.log('[Hyperstack Popup] refreshEvents called, storedAddress:', storedAddress);
     if (!storedAddress) {
-        console.log('[HyperFunded Popup] No stored address, skipping events');
+        console.log('[Hyperstack Popup] No stored address, skipping events');
         const container = document.getElementById('eventsContainer');
         if (container) container.innerHTML = '<div class="no-more-positions">Set wallet address to see events</div>';
         const countEl = document.getElementById('eventsCount');
@@ -117,12 +117,12 @@ export async function refreshEvents(storedAddress) {
         return;
     }
     try {
-        console.log('[HyperFunded Popup] Sending fetchEvents message to background...');
+        console.log('[Hyperstack Popup] Sending fetchEvents message to background...');
         const result = await safeSendMessage({ action: 'fetchEvents', address: storedAddress, since: 0 });
-        console.log('[HyperFunded Popup] fetchEvents result:', JSON.stringify(result).slice(0, 500));
+        console.log('[Hyperstack Popup] fetchEvents result:', JSON.stringify(result).slice(0, 500));
 
         const events = result.events || [];
-        console.log('[HyperFunded Popup] Rendering', events.length, 'events');
+        console.log('[Hyperstack Popup] Rendering', events.length, 'events');
         renderEvents(events);
 
         if (events.length > 0) {
@@ -134,11 +134,11 @@ export async function refreshEvents(storedAddress) {
             chrome.storage.local.set({ recentEvents: events.slice(0, 50) });
         }
     } catch (e) {
-        console.error('[HyperFunded Popup] Events fetch failed:', e.message, e);
+        console.error('[Hyperstack Popup] Events fetch failed:', e.message, e);
         const cached = await new Promise(resolve => {
             chrome.storage.local.get(['recentEvents'], resolve);
         });
-        console.log('[HyperFunded Popup] Cached events:', cached.recentEvents?.length ?? 0);
+        console.log('[Hyperstack Popup] Cached events:', cached.recentEvents?.length ?? 0);
         if (cached.recentEvents && cached.recentEvents.length > 0) {
             renderEvents(cached.recentEvents);
         } else {

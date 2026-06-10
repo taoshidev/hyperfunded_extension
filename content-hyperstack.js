@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// HyperFunded – Content script for hyperfunded.co
+// Hyperstack – Content script for hyperstack.trade
 // Bridges communication between the registration page and the extension.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -8,7 +8,7 @@
 
   // Inject marker element so the page can detect the extension
   const marker = document.createElement("div");
-  marker.id = "hyperfunded-ext";
+  marker.id = "hyperstack-ext";
   marker.dataset.version = VERSION;
   marker.style.display = "none";
   (document.documentElement || document.body).appendChild(marker);

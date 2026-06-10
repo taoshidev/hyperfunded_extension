@@ -128,7 +128,7 @@
 
     return `
       <div class="hf-bar">
-        <span class="hf-brand"><img src="${chrome.runtime.getURL('images/hyperfunded-logo.svg')}" alt="HyperFunded" class="hf-brand-logo"></span>
+        <span class="hf-brand"><img src="${chrome.runtime.getURL('images/hyperstack-logo.svg')}" alt="Hyperstack" class="hf-brand-logo"></span>
         ${ACCOUNT.registrationChecked ? `<span class="hf-status-badge${ACCOUNT.isRegistered ? '' : ' hf-status-badge--unregistered'}">● ${ACCOUNT.isRegistered ? (ACCOUNT.inChallenge ? 'In Challenge' : 'Funded') : 'Unregistered'}</span>` : ''}
         <span class="hf-divider"></span>
         <div class="hf-stat-group">
@@ -203,7 +203,7 @@
           <span class="hf-target-suffix">/ ${targetMax}%</span>
         </div>
         <span class="hf-divider"></span>
-        <a href="https://www.hyperfunded.co/rules" target="_blank" class="hf-rules-link">Rules</a>
+        <a href="https://www.hyperstack.trade/rules" target="_blank" class="hf-rules-link">Rules</a>
         <span class="hf-spacer"></span>
       </div>
     `;

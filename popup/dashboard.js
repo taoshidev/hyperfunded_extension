@@ -98,7 +98,7 @@ export function applyValidatorData(result, state) {
 
     const accountSizeData = result.account_size_data;
 
-    // Live HF balance (drawdown-adjusted) — base for limits and mirror sizing.
+    // Live HS balance (drawdown-adjusted) — base for limits and mirror sizing.
     // When the validator hasn't returned it we show "--" downstream rather
     // than fall back to accountSize, which is frozen at the funded amount and
     // would silently produce wrong limit/PnL numbers after any P&L.
@@ -124,7 +124,7 @@ export function applyValidatorData(result, state) {
     const cp = result.challenge_period || {};
     const dd = result.drawdown || {};
     const currentEquity = parseFloat(dd.current_equity) || 1;
-    // HF Account balance must come from account_size_data.balance — that is
+    // HS Account balance must come from account_size_data.balance — that is
     // realized PnL only (per the validator's transform: balance ≈ account_size
     // + total_realized_pnl − fees). Falling back to accountSize × currentEquity
     // mixes in unrealized PnL via current_equity's ratio, producing a wrong
@@ -231,7 +231,7 @@ export function applyValidatorData(result, state) {
     }
 
     // ── Mirror ratio (used by HF capacity block) ───────────────────────────────
-    // Numerator is live HF balance (drawdown-adjusted), not starting size, so
+    // Numerator is live HS balance (drawdown-adjusted), not starting size, so
     // the ratio reflects the trader's current equity rather than what they
     // originally funded. Falls to 0 when accountBalance is unavailable —
     // downstream HF-column UI shows "--" via the existing `r > 0` checks.
@@ -250,7 +250,7 @@ export function applyValidatorData(result, state) {
     // The HF section below is the only capacity surface that maps to a real
     // validator-enforced limit.
 
-    // ── Trading Capacity (HyperFunded) — validator-enforced caps ────────────
+    // ── Trading Capacity (Hyperstack) — validator-enforced caps ────────────
     // Every $ figure in this section depends on mirrorRatio. When it is 0
     // (accountBalance unavailable) we cannot compute honest HF values, so
     // render "--" rather than a misleading $0.00.

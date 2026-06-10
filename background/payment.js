@@ -1,14 +1,14 @@
 import { HL_APP_URL } from './config.js';
 
 const TRUSTED_API_ORIGINS = [
-  'https://hyperfunded.co',
-  'https://www.hyperfunded.co',
+  'https://hyperstack.trade',
+  'https://www.hyperstack.trade',
   'http://localhost:4568',
   'http://localhost:3000',
-  "https://testnet.hyperfunded.co",
-  "https://www.testnet.hyperfunded.co",
-  "https://staging.hyperfunded.co",
-  "https://www.staging.hyperfunded.co",
+  "https://testnet.hyperstack.trade",
+  "https://www.testnet.hyperstack.trade",
+  "https://staging.hyperstack.trade",
+  "https://www.staging.hyperstack.trade",
 ];
 
 async function notifySourceTab(tabId, status, data) {
@@ -36,14 +36,14 @@ export async function attemptBackgroundVerification() {
   }
 
   if (!TRUSTED_API_ORIGINS.includes(payment.apiOrigin)) {
-    console.error('[HyperFunded BG] Untrusted API origin:', payment.apiOrigin);
+    console.error('[Hyperstack BG] Untrusted API origin:', payment.apiOrigin);
     await chrome.storage.local.remove(['pendingHLPayment']);
     chrome.alarms.clear('hl-verify-poll');
     return;
   }
 
   if (Date.now() - payment.verifyStartedAt > 300_000) {
-    console.warn('[HyperFunded BG] Background verification timed out');
+    console.warn('[Hyperstack BG] Background verification timed out');
     await chrome.storage.local.set({
       hlPaymentResult: {
         success: false,
@@ -74,7 +74,7 @@ export async function attemptBackgroundVerification() {
     if (!res.ok) return;
     data = await res.json();
   } catch (e) {
-    console.warn('[HyperFunded BG] Verify poll error:', e.message);
+    console.warn('[Hyperstack BG] Verify poll error:', e.message);
     return;
   }
 
@@ -101,7 +101,7 @@ export async function attemptBackgroundVerification() {
     regOk = regRes.ok || regRes.status === 409;
     regResult = await regRes.json().catch(() => null);
   } catch (e) {
-    console.error('[HyperFunded BG] Register error:', e.message);
+    console.error('[Hyperstack BG] Register error:', e.message);
     return;
   }
 
@@ -127,7 +127,7 @@ export async function attemptBackgroundVerification() {
     registrationStatus: regResult?.status || 'registered',
   });
 
-  console.info('[HyperFunded BG] Background registration complete', {
+  console.info('[Hyperstack BG] Background registration complete', {
     txHash: data.txHash,
     status: regResult?.status,
   });
@@ -191,7 +191,7 @@ export function handlePaymentMessage(request, sender, sendResponse) {
         try {
           await chrome.tabs.sendMessage(hlTab.id, { action: 'startRegistrationPayment' });
         } catch (e) {
-          console.warn('[HyperFunded BG] Failed to message HL tab, retrying...', e.message);
+          console.warn('[Hyperstack BG] Failed to message HL tab, retrying...', e.message);
           await new Promise(r => setTimeout(r, 2000));
           await chrome.tabs.sendMessage(hlTab.id, { action: 'startRegistrationPayment' });
         }
@@ -204,13 +204,13 @@ export function handlePaymentMessage(request, sender, sendResponse) {
               status: 'navigating',
             });
           } catch (e) {
-            console.warn('[HyperFunded BG] Could not notify source tab:', e.message);
+            console.warn('[Hyperstack BG] Could not notify source tab:', e.message);
           }
         }
 
         sendResponse({ success: true });
       } catch (err) {
-        console.error('[HyperFunded BG] initiateHLPayment error:', err);
+        console.error('[Hyperstack BG] initiateHLPayment error:', err);
         sendResponse({ success: false, error: err.message });
       }
     })();
@@ -230,7 +230,7 @@ export function handlePaymentMessage(request, sender, sendResponse) {
         }
         sendResponse({ success: true });
       } catch (err) {
-        console.error('[HyperFunded BG] hlPaymentFormFilled relay error:', err);
+        console.error('[Hyperstack BG] hlPaymentFormFilled relay error:', err);
         sendResponse({ success: false, error: err.message });
       }
     })();
@@ -262,12 +262,12 @@ export function handlePaymentMessage(request, sender, sendResponse) {
               },
             });
           } catch (e) {
-            console.warn('[HyperFunded BG] Could not notify source tab:', e.message);
+            console.warn('[Hyperstack BG] Could not notify source tab:', e.message);
           }
         }
         sendResponse({ success: true });
       } catch (err) {
-        console.error('[HyperFunded BG] hlPaymentWalletDetected relay error:', err);
+        console.error('[Hyperstack BG] hlPaymentWalletDetected relay error:', err);
         sendResponse({ success: false, error: err.message });
       }
     })();
@@ -299,7 +299,7 @@ export function handlePaymentMessage(request, sender, sendResponse) {
               data: { senderAddress },
             });
           } catch (e) {
-            console.warn('[HyperFunded BG] Could not notify source tab:', e.message);
+            console.warn('[Hyperstack BG] Could not notify source tab:', e.message);
           }
         }
 
@@ -308,7 +308,7 @@ export function handlePaymentMessage(request, sender, sendResponse) {
 
         sendResponse({ success: true });
       } catch (err) {
-        console.error('[HyperFunded BG] hlPaymentSent error:', err);
+        console.error('[Hyperstack BG] hlPaymentSent error:', err);
         sendResponse({ success: false, error: err.message });
       }
     })();

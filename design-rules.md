@@ -1,12 +1,12 @@
 # Design Rules
 
-Decisions and conventions for the HyperFunded extension. Paste this file as context into any Claude session working on this codebase.
+Decisions and conventions for the Hyperstack extension. Paste this file as context into any Claude session working on this codebase.
 
 ---
 
 ## Brand Palette
 
-HyperFunded's four-color brand system:
+Hyperstack's four-color brand system:
 
 | Hex | Role |
 |-----|------|
@@ -21,7 +21,7 @@ HyperFunded's four-color brand system:
 
 | Token | Value | Use when |
 |-------|-------|----------|
-| `--bg` | `#12110E` | Root background for all HyperFunded UI — popup container, injected banner. The single source of truth for the warm near-black base referenced throughout the design system. |
+| `--bg` | `#12110E` | Root background for all Hyperstack UI — popup container, injected banner. The single source of truth for the warm near-black base referenced throughout the design system. |
 
 **Rule:** Never hardcode `#12110E` — always use `var(--bg)`. This keeps future theming possible.
 
@@ -54,7 +54,7 @@ Mint teal (`#97FCE4`) is the brand's single interactive color. It signals: activ
 |-------|-------|----------|
 | `--accent` | `#97FCE4` | Progress fills, active indicators, `color` on accent text |
 | `--accent-deep` | `#0D735F` | Reserve for emphasis / pressed states / future deep-emerald moments (atmospheric, never primary UI) |
-| `--brand-cream` | `#E1DFD7` | HyperFunded wordmark color in the logo SVG only; do not use as general text color |
+| `--brand-cream` | `#E1DFD7` | Hyperstack wordmark color in the logo SVG only; do not use as general text color |
 | `--green` | alias of `--accent` | **Directional/semantic use only:** positive P&L, positive balance change |
 | `--accent-bg` | 10% mint | Badge backgrounds only (LONG badge, In Challenge badge) |
 | `--accent-border` | 22% mint | Badge borders; also ghost button hover background |
@@ -149,13 +149,13 @@ Layered surfaces create depth without heavy shadows. Use the lowest opacity that
 
 | Token | Value | Use when |
 |-------|-------|----------|
-| `--card-bg` | 3% white | Primary/elevated card only (HF Account, Position cards) |
+| `--card-bg` | 3% white | Primary/elevated card only (HS Account, Position cards) |
 | `--card-bg-subtle` | 2% white | Setup/config cards (wallet config form) |
 | `--border-card` | 6% white | Standard card border |
 | `--border-outer` | 8% white | Container border, stronger dividers |
 | `--bar-bg` | 6% white | Progress bar tracks |
 
-**Card usage rule:** Use cards for: HF Account balance card, HL Account balance card (2-column grid), Position cards (grouped interactive data), Next Payout card (navigational destination), Analytics link (navigational destination), Wallet Config form (first-run setup). Everything else — Leverage & Buying Power, Challenge Progress, Drawdown — breathes directly on the background.
+**Card usage rule:** Use cards for: HS Account balance card, HL Account balance card (2-column grid), Position cards (grouped interactive data), Next Payout card (navigational destination), Analytics link (navigational destination), Wallet Config form (first-run setup). Everything else — Leverage & Buying Power, Challenge Progress, Drawdown — breathes directly on the background.
 
 **Never** add box-shadows to cards — depth comes from opacity layering only.
 
@@ -379,7 +379,7 @@ This is a stronger semantic than "blocked" because the trader has already breach
 | Property | Value |
 |----------|-------|
 | Variant class | `hf-toast hf-toast--warning hf-toast--oversize` (reuses the `--warning` red surface so severity matches "Order Prevented") |
-| Title | `"HyperFunded: Position Size Over Cap"` |
+| Title | `"Hyperstack: Position Size Over Cap"` |
 | Body | Worst per-asset breach first (`<symbol>` exposure `<used>` exceeds per-asset cap `<max>`), then total breach if also over, then a one-line action ("Reduce or close positions to bring exposure back under the cap.") |
 | Persistence | Stays up while the breach holds — no auto-dismiss timer. Re-evaluated after every ACCOUNT update (validator fetch, balance check, limits fetch) via `HF.toast.evaluateOversizeState()` |
 
@@ -434,22 +434,22 @@ The dashboard **Order Events** section shows validator order activity. When ther
 
 ---
 
-## Leverage & Buying Power — HyperFunded-Side Block
+## Leverage & Buying Power — Hyperstack-Side Block
 
-A single block showing the validator-enforced leverage limits on the funded HF account. HL has no per-pair or portfolio limit (orders pass through unchanged), so a separate HL block was removed — a bar with no real ceiling was misleading. HL exposure data is still available on HL's own UI and in the injected mirror preview at order entry.
+A single block showing the validator-enforced leverage limits on the funded HS account. HL has no per-pair or portfolio limit (orders pass through unchanged), so a separate HL block was removed — a bar with no real ceiling was misleading. HL exposure data is still available on HL's own UI and in the injected mirror preview at order entry.
 
 | Element | Treatment |
 |---------|-----------|
 | Block class | `.capacity-block .capacity-block--hs` |
 | Title | `Leverage & Buying Power` |
-| Basis note | `10px`, `--font-ui`, `--text-faint` — `Scaling ratio: HF balance $X ÷ HL equity $Y = Zx` (no trailing "HL trading is unrestricted" — that meaning lives in the info-expand instead) |
+| Basis note | `10px`, `--font-ui`, `--text-faint` — `Scaling ratio: HS balance $X ÷ HL equity $Y = Zx` (no trailing "HL trading is unrestricted" — that meaning lives in the info-expand instead) |
 | Basis values | `--font-mono`, `--text-body` — inline monospace for dollar amounts and ratios |
 | Bar fill (filled) | DD severity scale via JS — teal `#97FCE4` < 70%, amber `#ffb900` 70–90%, red `rgb(239,68,68)` ≥ 90% or breached. Same `capColor()` thresholds as banner DD and the mirror preview |
 | Bar overlay (pending) | 45° striped gradient in the severity color of the after-fill % — pending = "would-be exposure if these limits fill", not real exposure, so it stays striped |
 | Bar track | `--bar-bg` (neutral white at 6%) |
 | Pending text color | Severity color of after-fill % — matches the stripe color, set inline by JS |
 
-**Rule:** The basis note shows the scaling ratio explicitly as a formula (`HF balance ÷ HL equity = ratio`) rather than a single derived number. Surfacing the inputs lets the trader sanity-check the ratio against their own equity readings.
+**Rule:** The basis note shows the scaling ratio explicitly as a formula (`HS balance ÷ HL equity = ratio`) rather than a single derived number. Surfacing the inputs lets the trader sanity-check the ratio against their own equity readings.
 
 **Rule:** The phrase "HL trading is unrestricted" replaces the older "no HL-side cap". The trader needs to know HL orders won't be blocked at the exchange — the validator only enforces caps on the HF mirror at fill time.
 
@@ -474,7 +474,7 @@ A single block showing the validator-enforced leverage limits on the funded HF a
 
 ## Mirror Preview Card (Content Script)
 
-A floating card that appears below the order size input on the Hyperliquid trading page. Shows the HL order notional, mirrored amount on the HF account, and a capacity impact bar.
+A floating card that appears below the order size input on the Hyperliquid trading page. Shows the HL order notional, mirrored amount on the HS account, and a capacity impact bar.
 
 | Property | Value |
 |----------|-------|
