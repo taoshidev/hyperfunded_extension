@@ -1,9 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-<<<<<<<< HEAD:content-hyperstack.js
-// Hyperstack – Content script for hyperstack.trade
-========
 // HyperFunded – Content script for hyperfunded.co
->>>>>>>> 8372d6a (White-label rebrand: Hyperscaled → HyperFunded):content-hyperfunded.js
 // Bridges communication between the registration page and the extension.
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -12,11 +8,9 @@
 
   // Inject marker element so the page can detect the extension
   const marker = document.createElement("div");
-<<<<<<<< HEAD:content-hyperstack.js
+
   marker.id = "hyperstack-ext";
-========
-  marker.id = "hyperfunded-ext";
->>>>>>>> 8372d6a (White-label rebrand: Hyperscaled → HyperFunded):content-hyperfunded.js
+
   marker.dataset.version = VERSION;
   marker.style.display = "none";
   (document.documentElement || document.body).appendChild(marker);

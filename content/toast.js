@@ -509,12 +509,12 @@
     }
     if (totalOver) {
       lines.push(
-        'HF portfolio is at the cap of <b>' + fmt(totalMax) + '</b>. ' +
-        'Total HL exposure projects to <b>' + fmt(hlTotalTarget) + '</b> in HF terms.'
+        'HS portfolio is at the cap of <b>' + fmt(totalMax) + '</b>. ' +
+        'Total HL exposure projects to <b>' + fmt(hlTotalTarget) + '</b> in HS terms.'
       );
     }
     lines.push('HL trading is unaffected.');
-    lines.push('HF will resume tracking HL once HL exposure drops below the cap.');
+    lines.push('HS will resume tracking HL once HL exposure drops below the cap.');
     return lines.map(l => '<div class="hf-toast-detail-line">' + l + '</div>').join('');
   }
 

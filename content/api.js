@@ -98,7 +98,7 @@
 
       // Caps live on the HF side. Validator returns static USD figures
       // (max_*_usd = ratio × starting account_size), so we derive the static
-      // leverage ratio and apply it to the live HF balance. This matches what
+      // leverage ratio and apply it to the live HS balance. This matches what
       // the tgbot does and lets the caps track realized PnL.
       const accountBalance = ACCOUNT.accountBalance;
       const fundedSize = parseFloat(result.account_size) || ACCOUNT.fundedSize || 0;
