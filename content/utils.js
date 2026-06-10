@@ -482,7 +482,7 @@
 
   function clampDebug(event, details = {}) {
     if (!CLAMP_DEBUG) return;
-    console.log("[HyperFunded][ClampDebug]", event, details);
+    console.log("[Hyperstack][ClampDebug]", event, details);
   }
 
   function describeInput(input) {

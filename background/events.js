@@ -30,7 +30,7 @@ export async function pollEventsForStoredAddress() {
     allEvents = newEvents.concat(allEvents).slice(0, 50);
     await chrome.storage.local.set({ recentEvents: allEvents });
   } catch (e) {
-    console.error('[HyperFunded BG] Event poll failed:', e.message);
+    console.error('[Hyperstack BG] Event poll failed:', e.message);
   }
 }
 
@@ -48,7 +48,7 @@ export function showEventNotification(evt) {
     message += `\nFill: ${evt.fill_hash.slice(0, 10)}...`;
   }
 
-  chrome.notifications.create(`hyperfunded-event-${evt.timestamp_ms}`, {
+  chrome.notifications.create(`hyperstack-event-${evt.timestamp_ms}`, {
     type: 'basic',
     iconUrl: 'icon128.png',
     title,

@@ -5,7 +5,7 @@
  * publishes USD caps in starting-account-size scale (e.g. $5,000 / $20,000 on
  * a $10,000 account = 50% / 200%). The extension stores caps as HF-side USD
  * by deriving the static ratio (pair_usd / fundedSize) and applying it to
- * the live HF balance:
+ * the live HS balance:
  *
  *   ACCOUNT.maxPositionPerPair = (max_position_per_pair_usd / fundedSize) × accountBalance
  *   ACCOUNT.maxPortfolio       = (max_portfolio_usd       / fundedSize) × accountBalance
@@ -243,7 +243,7 @@ describe('limits integration — typical scenarios', () => {
 
   it('cap moves with accountBalance — never frozen at fundedSize', () => {
     // Critical: pre-refactor behaviour froze the cap at the static USD figure
-    // from the validator. Now the cap is a fraction of live HF balance, so
+    // from the validator. Now the cap is a fraction of live HS balance, so
     // it tracks PnL.
     const limits = { max_position_per_pair_usd: 5000, max_portfolio_usd: 20000 };
     const r1 = applyTraderLimits({ accountBalance: 9000,  fundedSize: 10000, ...limits });

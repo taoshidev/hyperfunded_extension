@@ -67,7 +67,7 @@ beforeAll(async () => {
   ]);
   const hlState = await hlPost(HL_URL, { type: 'clearinghouseState', user: VAULT_ADDRESS });
   hlEq = parseFloat(hlState.crossMarginSummary?.accountValue ?? 0);
-  // Live HF balance from validator dashboard — needed for the new HF-scale
+  // Live HS balance from validator dashboard — needed for the new HF-scale
   // cap math (Diff #2/#3). Falls back to fundedSize for empty test wallets.
   accountBalance = parseFloat(validatorRaw?.dashboard?.account_size_data?.balance)
     || limitsData.account_size;

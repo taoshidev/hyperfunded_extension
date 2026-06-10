@@ -7,8 +7,8 @@
 
 /* ── Design Tokens ───────────────────────────────────── */
 :root {
-    /* Base — HyperFunded brand palette */
-    --bg:              #12110E;          /* warm near-black, HyperFunded canvas */
+    /* Base — Hyperstack brand palette */
+    --bg:              #12110E;          /* warm near-black, Hyperstack canvas */
     --accent:          #97FCE4;          /* mint teal — primary brand accent */
     --accent-deep:     #0D735F;          /* deep emerald — emphasis / pressed states */
     --brand-cream:     #E1DFD7;          /* off-white cream — brand wordmark color */

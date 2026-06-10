@@ -21,7 +21,7 @@
           '<span class="hf-mp-val" id="hf-mp-hl-val">--</span>' +
         '</div>' +
         '<div class="hf-mp-row hf-mp-row--mirror" id="hf-mp-mirror-row">' +
-          '<span class="hf-mp-label">Mirrors to HF</span>' +
+          '<span class="hf-mp-label">Mirrors to HS</span>' +
           '<span class="hf-mp-val-group">' +
             '<span class="hf-mp-val hf-mp-val--accent" id="hf-mp-hs-val">--</span>' +
             '<span class="hf-mp-ratio" id="hf-mp-ratio"></span>' +
@@ -31,7 +31,7 @@
       '<div class="hf-mp-warning" id="hf-mp-warning" style="display:none"></div>' +
       '<div class="hf-mp-capacity hf-mp-capacity--pair" id="hf-mp-pair-section">' +
         '<div class="hf-mp-cap-header">' +
-          '<span class="hf-mp-cap-title" id="hf-mp-pair-title">HF PAIR LIMIT</span>' +
+          '<span class="hf-mp-cap-title" id="hf-mp-pair-title">HS PAIR LIMIT</span>' +
           '<span class="hf-mp-cap-pct" id="hf-mp-pair-pct">--</span>' +
         '</div>' +
         '<div class="hf-mp-bar">' +
@@ -42,7 +42,7 @@
       '</div>' +
       '<div class="hf-mp-capacity">' +
         '<div class="hf-mp-cap-header">' +
-          '<span class="hf-mp-cap-title">HF PORTFOLIO</span>' +
+          '<span class="hf-mp-cap-title">HS PORTFOLIO</span>' +
           '<span class="hf-mp-cap-pct" id="hf-mp-cap-pct">--</span>' +
         '</div>' +
         '<div class="hf-mp-bar">' +
@@ -128,7 +128,7 @@
   }
 
   function showMirrorPreview(input) {
-    console.log('[HyperFunded][MirrorPreview] showMirrorPreview called', {
+    console.log('[Hyperstack][MirrorPreview] showMirrorPreview called', {
       isRegistered: ACCOUNT.isRegistered,
       registrationChecked: ACCOUNT.registrationChecked,
       hlBalance: ACCOUNT.hlBalance,
@@ -138,7 +138,7 @@
     });
 
     if (!ACCOUNT.isRegistered) {
-      console.log('[HyperFunded][MirrorPreview] Skipped: not registered');
+      console.log('[Hyperstack][MirrorPreview] Skipped: not registered');
       return;
     }
 
@@ -170,12 +170,12 @@
       if (notional <= 0) notional = HF.utils.inputToNotional(v);
     }
     if (notional <= 0) {
-      console.log('[HyperFunded][MirrorPreview] Skipped: notional <= 0');
+      console.log('[Hyperstack][MirrorPreview] Skipped: notional <= 0');
       hideMirrorPreview();
       return;
     }
 
-    console.log('[HyperFunded][MirrorPreview] Showing card', { notional, ratio: getMirrorRatio() });
+    console.log('[Hyperstack][MirrorPreview] Showing card', { notional, ratio: getMirrorRatio() });
 
     // Caps and exposures are compared in HF units. Convert HL exposure /
     // pending order to HF via mirrorMultiplier; caps already come in HF USD
@@ -318,19 +318,19 @@
       const bindKind = (pairCapBinds && portCapBinds) ? 'both' : (pairCapBinds ? 'pair' : 'port');
 
       if (stillOver) {
-        lines.push('After this reduction, HL pair would still exceed the cap. HF stays at <b>' + fmt(pairMax) + '</b> — none of this order mirrors until HL drops below the cap.');
+        lines.push('After this reduction, HL pair would still exceed the cap. HS stays at <b>' + fmt(pairMax) + '</b> — none of this order mirrors until HL drops below the cap.');
         lines.push('HL trading is unaffected.');
       } else if ((branch === 'new' || branch === 'add') && (pairCapBinds || portCapBinds)) {
         if (mirrorsTo < 0.01) {
           const desc = (bindKind === 'pair')
-            ? 'HF pair is at the cap of <b>' + fmt(pairMax) + '</b>'
+            ? 'HS pair is at the cap of <b>' + fmt(pairMax) + '</b>'
             : (bindKind === 'port')
-            ? 'HF portfolio is at the cap of <b>' + fmt(maxTotal) + '</b>'
-            : 'HF pair and portfolio are at the caps';
+            ? 'HS portfolio is at the cap of <b>' + fmt(maxTotal) + '</b>'
+            : 'HS pair and portfolio are at the caps';
           lines.push(desc + '. None of this order mirrors.');
           lines.push('HL trading is unaffected.');
         } else {
-          lines.push('Order exceeds ' + capPhrase(bindKind) + '. HF will mirror only <b>' + fmt(mirrorsTo) + '</b> before capping at the limit.');
+          lines.push('Order exceeds ' + capPhrase(bindKind) + '. HS will mirror only <b>' + fmt(mirrorsTo) + '</b> before capping at the limit.');
           lines.push('HL trading is unaffected.');
           // Suggest a smaller HL order — only when the pair cap (alone)
           // binds; portfolio-bound headroom depends on other pairs and isn't
@@ -347,9 +347,9 @@
         const oldS = (currentSide || '').toUpperCase();
         const newS = (flippedSide || '').toUpperCase();
         if (afterHsPair < 0.01) {
-          lines.push('This flips your position. HF will close <b>' + fmt(currentHsPair) + ' ' + oldS + '</b>; the new ' + newS + ' is fully blocked by ' + capPhrase(bindKind) + ', so none of the new side mirrors.');
+          lines.push('This flips your position. HS will close <b>' + fmt(currentHsPair) + ' ' + oldS + '</b>; the new ' + newS + ' is fully blocked by ' + capPhrase(bindKind) + ', so none of the new side mirrors.');
         } else {
-          lines.push('This flips your position. HF will close <b>' + fmt(currentHsPair) + ' ' + oldS + '</b> and open <b>' + fmt(afterHsPair) + ' ' + newS + '</b>, capped by ' + capPhrase(bindKind) + '.');
+          lines.push('This flips your position. HS will close <b>' + fmt(currentHsPair) + ' ' + oldS + '</b> and open <b>' + fmt(afterHsPair) + ' ' + newS + '</b>, capped by ' + capPhrase(bindKind) + '.');
         }
         lines.push('HL trading is unaffected.');
       }
@@ -373,7 +373,7 @@
     // get an arrow. Detail line shows transition $-amounts.
     const pairTitle = el.querySelector('#hf-mp-pair-title');
     if (pairTitle) {
-      let titleText = 'HF ' + (formatPairLabel(symbol) || 'PAIR') + ' LIMIT';
+      let titleText = 'HS ' + (formatPairLabel(symbol) || 'PAIR') + ' LIMIT';
       if (branch === 'flip' && currentSide && flippedSide) {
         titleText += ' · ' + currentSide.toUpperCase() + ' → ' + flippedSide.toUpperCase();
       } else if (branch === 'reduce' && !flippedSide) {
@@ -531,7 +531,7 @@
   }
 
   function onSizeInputChange(input) {
-    console.log('[HyperFunded][MirrorPreview] onSizeInputChange triggered');
+    console.log('[Hyperstack][MirrorPreview] onSizeInputChange triggered');
     showMirrorPreview(input);
   }
 

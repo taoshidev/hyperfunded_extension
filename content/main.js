@@ -44,14 +44,14 @@
   // Listen for messages from popup and background
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "forceRegistrationFlow") {
-      console.log("[HyperFunded] Forcing registration flow...");
+      console.log("[Hyperstack] Forcing registration flow...");
       sessionStorage.setItem("hf_pending_registration", "true");
       HF.payment.processRegistrationPayment();
       sendResponse({ success: true });
     }
 
     if (request.action === "startRegistrationPayment") {
-      console.log("[HyperFunded] Starting registration payment from website...");
+      console.log("[Hyperstack] Starting registration payment from website...");
       HF.payment.processRegistrationPayment();
       sendResponse({ success: true });
     }

@@ -25,7 +25,7 @@ export function showPositionNotification() {
 
   console.log('Creating notification with options:', notificationOptions);
 
-  chrome.notifications.create('hyperfunded-position', notificationOptions, (notificationId) => {
+  chrome.notifications.create('hyperstack-position', notificationOptions, (notificationId) => {
     if (chrome.runtime.lastError) {
       console.error('Error creating notification:', chrome.runtime.lastError);
       return;
@@ -42,7 +42,7 @@ export function showPositionNotification() {
 
 export function setupNotificationClickHandler() {
   chrome.notifications.onClicked.addListener((notificationId) => {
-    if (notificationId === 'hyperfunded-position') {
+    if (notificationId === 'hyperstack-position') {
       chrome.tabs.create({ url: HL_APP_URL });
     }
   });

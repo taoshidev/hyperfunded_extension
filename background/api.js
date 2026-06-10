@@ -14,24 +14,24 @@ export function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
 
 export async function resolveEntityEndpoint(hlAddress) {
   if (entityEndpointCache[hlAddress]) {
-    console.log('[HyperFunded BG] Entity endpoint cache hit:', entityEndpointCache[hlAddress]);
+    console.log('[Hyperstack BG] Entity endpoint cache hit:', entityEndpointCache[hlAddress]);
     return entityEndpointCache[hlAddress];
   }
 
   const lookupUrl = `${VALIDATOR_URL}/entity/endpoint?hl_address=${hlAddress}`;
-  console.log('[HyperFunded BG] Resolving entity endpoint:', lookupUrl);
+  console.log('[Hyperstack BG] Resolving entity endpoint:', lookupUrl);
 
   const res = await fetchWithTimeout(lookupUrl);
-  console.log('[HyperFunded BG] Entity endpoint response status:', res.status);
+  console.log('[Hyperstack BG] Entity endpoint response status:', res.status);
 
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    console.error('[HyperFunded BG] Entity endpoint lookup failed:', res.status, body);
+    console.error('[Hyperstack BG] Entity endpoint lookup failed:', res.status, body);
     throw new Error(`Entity endpoint lookup failed (${res.status}): ${body}`);
   }
 
   const data = await res.json();
-  console.log('[HyperFunded BG] Entity endpoint response:', JSON.stringify(data));
+  console.log('[Hyperstack BG] Entity endpoint response:', JSON.stringify(data));
 
   if (!data.endpoint_url) {
     data.endpoint_url = 'https://entity-miner.mainnet.vantatrading.io';
@@ -44,26 +44,26 @@ export async function resolveEntityEndpoint(hlAddress) {
 // ── Events ───────────────────────────────────────────────────────────────────
 
 export async function fetchEvents(hlAddress, since) {
-  console.log('[HyperFunded BG] fetchEvents called for', hlAddress, 'since', since);
+  console.log('[Hyperstack BG] fetchEvents called for', hlAddress, 'since', since);
 
   const endpointUrl = await resolveEntityEndpoint(hlAddress);
   let url = `${endpointUrl}/api/hl/${hlAddress}/events`;
   if (since) {
     url += `?since=${since}`;
   }
-  console.log('[HyperFunded BG] Fetching events from:', url);
+  console.log('[Hyperstack BG] Fetching events from:', url);
 
   const res = await fetchWithTimeout(url);
-  console.log('[HyperFunded BG] Events response status:', res.status);
+  console.log('[Hyperstack BG] Events response status:', res.status);
 
   if (!res.ok) {
     const body = await res.text().catch(() => '');
-    console.error('[HyperFunded BG] Events fetch failed:', res.status, body);
+    console.error('[Hyperstack BG] Events fetch failed:', res.status, body);
     throw new Error(`Events API error ${res.status}: ${body}`);
   }
 
   const data = await res.json();
-  console.log('[HyperFunded BG] Events received:', data.count ?? data.events?.length ?? 0, 'events');
+  console.log('[Hyperstack BG] Events received:', data.count ?? data.events?.length ?? 0, 'events');
   setCachedResponse(`cache_events_${hlAddress.toLowerCase()}`, data);
   return data;
 }
@@ -97,13 +97,13 @@ async function getNonDefaultDexes() {
       }
     }
     _nonDefaultDexCache = Array.from(dexes).sort();
-    console.log('[HyperFunded BG] Discovered non-default dexes:', _nonDefaultDexCache);
+    console.log('[Hyperstack BG] Discovered non-default dexes:', _nonDefaultDexCache);
     return _nonDefaultDexCache;
   } catch (e) {
     // Do NOT cache the empty list on failure — that would silently strand
     // dex equity/positions until the next extension reload. Return [] for
     // this call only; the next call retries.
-    console.warn('[HyperFunded BG] Trade pairs fetch failed, retrying next call:', e.message);
+    console.warn('[Hyperstack BG] Trade pairs fetch failed, retrying next call:', e.message);
     return [];
   }
 }
@@ -133,7 +133,7 @@ async function getFriendlyToHlCoin() {
     _friendlyToHlCoinCache = map;
     return map;
   } catch (e) {
-    console.warn('[HyperFunded BG] Trade pairs fetch failed for coin map, retrying next call:', e.message);
+    console.warn('[Hyperstack BG] Trade pairs fetch failed for coin map, retrying next call:', e.message);
     return {};
   }
 }
@@ -307,7 +307,7 @@ export async function fetchValidatorData(address) {
   const result = transformTraderResponse(raw);
 
   if (result.hl_address && result.hl_address.toLowerCase() !== normalizedAddress) {
-    console.warn('[HyperFunded BG] Address mismatch — queried:', normalizedAddress, 'got:', result.hl_address);
+    console.warn('[Hyperstack BG] Address mismatch — queried:', normalizedAddress, 'got:', result.hl_address);
     return { status: 'not_registered' };
   }
 
@@ -443,7 +443,7 @@ function readSpotUsdValue(balance, mids) {
 // ── HL Balance ───────────────────────────────────────────────────────────────
 
 export async function fetchHLBalance(address) {
-  console.log('[HyperFunded BG] fetchHLBalance called for', address);
+  console.log('[Hyperstack BG] fetchHLBalance called for', address);
 
   const nonDefaultDexes = await getNonDefaultDexes();
   const headers = { 'Content-Type': 'application/json' };
@@ -497,7 +497,7 @@ export async function fetchHLBalance(address) {
         dexNtlPos += num(m.totalNtlPos);
       }
     } catch (e) {
-      console.warn(`[HyperFunded BG] Dex "${dex}" fetch failed, excluded from totals:`, e.message);
+      console.warn(`[Hyperstack BG] Dex "${dex}" fetch failed, excluded from totals:`, e.message);
     }
   }
   const nativeMargin = readMargin(perpsData);
@@ -505,7 +505,7 @@ export async function fetchHLBalance(address) {
   const perpMarginUsed = num(nativeMargin.totalMarginUsed) + dexMarginUsed;
   const perpNtlPos = num(nativeMargin.totalNtlPos) + dexNtlPos;
   const perpsWithdrawable = Math.max(0, perpAccountValue - perpMarginUsed);
-  console.log('[HyperFunded BG] perpAccountValue:', perpAccountValue, '(dex contrib:', dexAccountValue, ') perpMarginUsed:', perpMarginUsed, 'perpAvailable:', perpsWithdrawable);
+  console.log('[Hyperstack BG] perpAccountValue:', perpAccountValue, '(dex contrib:', dexAccountValue, ') perpMarginUsed:', perpMarginUsed, 'perpAvailable:', perpsWithdrawable);
 
   let spotUSDC = 0;
   let spotAssetsUsd = 0;
@@ -526,10 +526,10 @@ export async function fetchHLBalance(address) {
       spotAssetsUsd = Object.values(spotValueByCoin).reduce((s, v) => s + (Number(v) || 0), 0);
     }
   } catch (e) {
-    console.warn('[HyperFunded BG] Spot fetch failed, using perps only:', e.message);
+    console.warn('[Hyperstack BG] Spot fetch failed, using perps only:', e.message);
   }
   console.log(
-    '[HyperFunded BG] spot valuation:',
+    '[Hyperstack BG] spot valuation:',
     JSON.stringify({
       spotUSDC,
       spotAssetsUsd,
@@ -551,7 +551,7 @@ export async function fetchHLBalance(address) {
     spotUSDC = 0;
   }
 
-  console.log('[HyperFunded BG] total accountValue:', accountValue);
+  console.log('[Hyperstack BG] total accountValue:', accountValue);
   const exposure = extractExposureFromAssetPositions(perpsData);
 
   // Pending buy limit orders are tracked separately from filled positions.
@@ -570,7 +570,7 @@ export async function fetchHLBalance(address) {
     }
     pendingNotionalByPair = extractPendingBuyNotional(allOpenOrders);
   } catch (e) {
-    console.warn('[HyperFunded BG] Open orders fetch failed, pending orders excluded:', e.message);
+    console.warn('[Hyperstack BG] Open orders fetch failed, pending orders excluded:', e.message);
   }
 
   // Remap HL coin keys (e.g. "XYZ:CL") to validator-friendly names (e.g.
@@ -612,7 +612,7 @@ export async function fetchHLBalance(address) {
   const openSingleUsed = Object.values(notionalByPair).reduce((m, v) => Math.max(m, Number(v) || 0), 0);
 
   console.log(
-    '[HyperFunded BG] HL exposure (filled vs pending):',
+    '[Hyperstack BG] HL exposure (filled vs pending):',
     JSON.stringify({
       openPositionCount: exposure.openPositionCount,
       filledTotal,

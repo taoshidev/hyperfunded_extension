@@ -1,5 +1,5 @@
 /**
- * Integration tests — HyperFunded testnet validator API.
+ * Integration tests — Hyperstack testnet validator API.
  *
  * Verifies:
  *   - /hl-traders/{address} returns expected shape + real account data

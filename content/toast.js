@@ -33,7 +33,7 @@
     const limitScope = constraint === "per-pair" ? "single-asset" : "portfolio";
     const heading = "Why this was blocked";
     const what = "You tried to place a size above your current " + limitScope + " capacity.";
-    const why = "HyperFunded enforces this cap to keep your account inside funded-challenge risk limits.";
+    const why = "Hyperstack enforces this cap to keep your account inside funded-challenge risk limits.";
     const how = "Lower size to <b>" + formatSizeForToast(clampedSize, sizeUnit) + " " + sizeUnit +
       "</b> or less, or close/reduce existing positions to free " + limitScope + " capacity.";
     const capacity = "Remaining capacity right now: <b>" + formatSizeForToast(allowed, sizeUnit) + " " + sizeUnit + "</b>.";
@@ -91,12 +91,12 @@
     if (!isBlockedOnly) blockedToastDetailsExpanded = false;
 
     let messageHtml = "Order exceeds your <b>" + constraint + " position size limit</b>.";
-    let titleHtml = "HyperFunded: Size clamped to " + formatSizeForToast(clampedSize, sizeUnit) + " " + sizeUnit;
+    let titleHtml = "Hyperstack: Size clamped to " + formatSizeForToast(clampedSize, sizeUnit) + " " + sizeUnit;
     let iconHtml = "\u26a0\ufe0f";
     let variantClass = "hf-toast hf-toast--alert";
 
     if (allowed === 0) {
-       titleHtml = "HyperFunded: Order Prevented";
+       titleHtml = "Hyperstack: Order Prevented";
        messageHtml =
          "No remaining capacity within your <b>" + constraint + "</b> position limit.";
        if (perAssetBuyContext) {
@@ -359,7 +359,7 @@
       '<div class="hf-toast-icon">' + iconHtml + '</div>' +
       '<div class="hf-toast-content">' +
         '<div class="hf-toast-title">Unsupported Pair</div>' +
-        '<div class="hf-toast-msg"><b>' + (symbol || "This pair") + '</b> is not supported by HyperFunded. Switch to a supported pair to trade.</div>' +
+        '<div class="hf-toast-msg"><b>' + (symbol || "This pair") + '</b> is not supported by Hyperstack. Switch to a supported pair to trade.</div>' +
       '</div>' +
       '<button class="hf-toast-close" type="button" aria-label="Dismiss">' +
         '<svg width="10" height="10" viewBox="0 0 10 10" fill="none">' +
@@ -477,18 +477,18 @@
       const worst = overAssets[0];
       const more = overAssets.length > 1 ? ` (+${overAssets.length - 1} more over cap)` : '';
       lines.push(
-        '<b>' + worst.sym + '</b> HF pair is at the cap of <b>' + fmt(pairMax) + '</b>' + more + '. ' +
-        'HL exposure projects to <b>' + fmt(worst.hlTarget) + '</b> in HF terms.'
+        '<b>' + worst.sym + '</b> HS pair is at the cap of <b>' + fmt(pairMax) + '</b>' + more + '. ' +
+        'HL exposure projects to <b>' + fmt(worst.hlTarget) + '</b> in HS terms.'
       );
     }
     if (totalOver) {
       lines.push(
-        'HF portfolio is at the cap of <b>' + fmt(totalMax) + '</b>. ' +
-        'Total HL exposure projects to <b>' + fmt(hlTotalTarget) + '</b> in HF terms.'
+        'HS portfolio is at the cap of <b>' + fmt(totalMax) + '</b>. ' +
+        'Total HL exposure projects to <b>' + fmt(hlTotalTarget) + '</b> in HS terms.'
       );
     }
     lines.push('HL trading is unaffected.');
-    lines.push('HF will resume tracking HL once HL exposure drops below the cap.');
+    lines.push('HS will resume tracking HL once HL exposure drops below the cap.');
     return lines.map(l => '<div class="hf-toast-detail-line">' + l + '</div>').join('');
   }
 

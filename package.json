@@ -1,5 +1,5 @@
 {
-  "name": "hyperfunded-extension",
+  "name": "hyperstack-extension",
   "type": "module",
   "scripts": {
     "test": "vitest run",
