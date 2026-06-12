@@ -55,7 +55,21 @@
     return true;
   }
 
-  function effectiveMaxSingleUsd() {
+  function assetClassOf(symbol) {
+    const sym = resolveExposureSymbol(symbol || getCurrentSymbol());
+    return (sym && HF.state.pairCategory?.[sym]) || null;
+  }
+
+  // Per-pair cap in HS USD. Prefers the pair's own tier multiplier from
+  // /trade-pairs (caps differ within a class, e.g. GOLD vs SILVER); falls
+  // back to the class-level /limits figure, then to the margin basis.
+  function effectiveMaxSingleUsd(symbol) {
+    const sym = resolveExposureSymbol(symbol || getCurrentSymbol());
+    const accountBalance = Number(ACCOUNT.accountBalance) || 0;
+    const lev = Number(HF.state.pairTierLeverage?.[sym]?.[ACCOUNT.tier]) || 0;
+    if (HF.state.limitsLoaded && lev > 0 && accountBalance > 0) {
+      return lev * accountBalance;
+    }
     if (HF.state.limitsLoaded && ACCOUNT.maxPositionPerPair > 0) {
       return ACCOUNT.maxPositionPerPair;
     }
@@ -67,6 +81,26 @@
       return ACCOUNT.maxPortfolio;
     }
     return marginLimitBasisUsd();
+  }
+
+  // Per-class cap in HS USD, or null when none applies — callers skip the check
+  function effectiveMaxClassUsd(symbol) {
+    const cls = assetClassOf(symbol);
+    const cap = cls ? Number(ACCOUNT.maxByAssetClass?.[cls]) : 0;
+    return cap > 0 ? cap : null;
+  }
+
+  // Combined |HS notional| of filled positions in symbol's asset class
+  function classExposureUsd(symbol) {
+    const cls = assetClassOf(symbol);
+    if (!cls) return 0;
+    let sum = 0;
+    for (const [coin, pos] of Object.entries(ACCOUNT.hsPositionsByCoin || {})) {
+      if (HF.state.pairCategory?.[coin] === cls) {
+        sum += Math.abs(Number(pos?.value) || 0);
+      }
+    }
+    return sum;
   }
 
   const fmt = (n) =>
@@ -531,8 +565,11 @@
     resolveExposureSymbol,
     isReduceIntent,
     resolveChallengeModeFromValidator,
+    assetClassOf,
     effectiveMaxSingleUsd,
     effectiveMaxTotalUsd,
+    effectiveMaxClassUsd,
+    classExposureUsd,
     fmt,
     pct,
     clamp,

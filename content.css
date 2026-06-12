@@ -1081,15 +1081,13 @@ button.hf-trade-blocked:disabled {
   margin: 0 0 0 5px; padding: 0;
 }
 
-/* ── Capacity sections ── */
+/* ── Capacity sections — uniform 8px rhythm, no dividers ── */
 #hf-mirror-preview .hf-mp-capacity {
   display: block;
-  margin: 0; padding: 0;
+  margin: 0 0 8px 0; padding: 0;
 }
-#hf-mirror-preview .hf-mp-capacity--pair {
-  margin: 0 0 8px 0;
-  padding: 0 0 8px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+#hf-mirror-preview .hf-mp-capacity:last-child {
+  margin-bottom: 0;
 }
 #hf-mirror-preview .hf-mp-cap-header {
   display: flex;

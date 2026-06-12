@@ -124,7 +124,7 @@ describe('Validator data pipeline', () => {
     expect(openPos).toHaveLength(0);
   });
 
-  it('validator hfPositionsByCoin is empty (all positions closed)', () => {
+  it('validator hsPositionsByCoin is empty (all positions closed)', () => {
     // Post-refactor: HF positions derive strictly as size × price (sum of
     // signed `q` × HL mid). With no open positions, the map is empty —
     // no `nl × account_size` fallback that would produce phantom values.

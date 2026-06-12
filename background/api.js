@@ -292,7 +292,7 @@ export async function fetchValidatorData(address) {
 
   // Fetch validator dashboard + HL mid prices in parallel. Mid prices are
   // needed to derive HF position values as size × price. A failed mid
-  // prices call is non-fatal — hfPositionsByCoin will be empty for that
+  // prices call is non-fatal — hsPositionsByCoin will be empty for that
   // refresh and downstream UI shows "--" rather than fabricated values.
   const [valRes, midsRes] = await Promise.all([
     fetchWithTimeout(`${VALIDATOR_URL}/hl-traders/${normalizedAddress}`),
@@ -319,7 +319,7 @@ export async function fetchValidatorData(address) {
   const positionsList = Array.isArray(result.positions)
     ? result.positions
     : (result.positions?.positions || []);
-  result.hfPositionsByCoin = deriveHsPositionsByCoin(positionsList, midPrices, friendlyToHl);
+  result.hsPositionsByCoin = deriveHsPositionsByCoin(positionsList, midPrices, friendlyToHl);
 
   setCachedResponse(cacheKey, result);
   return result;
@@ -576,7 +576,7 @@ export async function fetchHLBalance(address) {
   // Remap HL coin keys (e.g. "XYZ:CL") to validator-friendly names (e.g.
   // "WTIOIL") so popup and content script consumers see consistent labels
   // matching the validator's `trade_pair` form. Native pairs pass through
-  // (BTC → BTC). Without this, the popup unions hfPositionsByCoin
+  // (BTC → BTC). Without this, the popup unions hsPositionsByCoin
   // (friendly-keyed) with pendingNotionalByPair (HL-keyed), and the same
   // pair shows up under two labels (e.g. "WTIOIL" and "XYZCL").
   const friendlyToHlMap = await getFriendlyToHlCoin();

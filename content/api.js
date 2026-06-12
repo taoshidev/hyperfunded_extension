@@ -92,6 +92,10 @@
     try {
       const result = await sendToBackground({ action: "fetchTraderLimits", address });
 
+      // Drop responses that raced an address switch
+      const currentAddress = await getUserAddress();
+      if (currentAddress && currentAddress.toLowerCase() !== address.toLowerCase()) return;
+
       // Caps live on the HF side. Validator returns static USD figures
       // (max_*_usd = ratio × starting account_size), so we derive the static
       // leverage ratio and apply it to the live HS balance. This matches what
@@ -109,6 +113,19 @@
       if (Number.isFinite(totalUsd) && totalUsd > 0) {
         ACCOUNT.maxPortfolio = (totalUsd / fundedSize) * accountBalance;
       }
+      // Absent on older backends → null/empty, checks fall back to two-layer behavior.
+      // Challenge accounts are tier 1 by definition, so derive it when the
+      // backend predates the field; funded tiers depend on size cutoffs we
+      // don't replicate client-side.
+      ACCOUNT.tier = Number.isInteger(result.tier) ? result.tier
+        : result.in_challenge_period === true ? 1
+        : null;
+      const byClass = {};
+      for (const [cls, usd] of Object.entries(result.max_asset_class_usd || {})) {
+        const v = parseFloat(usd);
+        if (Number.isFinite(v) && v > 0) byClass[cls] = (v / fundedSize) * accountBalance;
+      }
+      ACCOUNT.maxByAssetClass = byClass;
       HF.state.limitsLoaded = true;
 
       // Re-render the mirror preview card if it's already visible with stale limit values
@@ -131,10 +148,14 @@
         // Build a reverse map: any symbol key (uppercased) → friendly display name
         // e.g. "XYZ:CL" → "WTIOIL", "XYZ:WTIOIL" → "WTIOIL", "BTC" → "BTC"
         HF.state.hlCoinToDisplay = {};
+        HF.state.pairCategory = {};
+        HF.state.pairTierLeverage = {};
         const symbols = new Set();
         pairs.forEach(p => {
           const friendly = p.trade_pair_id.replace(/USDC?$/, "").toUpperCase();
           symbols.add(friendly);
+          HF.state.pairCategory[friendly] = p.trade_pair_category || null;
+          HF.state.pairTierLeverage[friendly] = p.subaccount_positional_leverage_by_tier || null;
           // mainnet omits hl_coin — fall back to the derived friendly name
           const hlKey = p.hl_coin ? p.hl_coin.toUpperCase() : friendly;
           symbols.add(hlKey);
@@ -152,6 +173,9 @@
       }
       HF.state.pairsLoaded = true;
       HF.pairSupport.checkPairSupport(true);
+      // Re-evaluate surfaces that may have rendered before pair data arrived
+      if (HF.mirrorPreview) HF.mirrorPreview.refreshIfVisible();
+      HF.toast?.evaluateOversizeState?.();
     } catch (e) {
       console.error("[Hyperstack] Trade pairs fetch failed, using defaults:", e);
       HF.state.pairsLoaded = true;
@@ -212,7 +236,6 @@
       ACCOUNT.inChallenge = HF.utils.resolveChallengeModeFromValidator(result);
 
       const dd = result.drawdown || {};
-      const currentEquity = parseFloat(dd.current_equity) || 1;
       const accountSizeData = result.account_size_data || null;
       const balanceField = parseFloat(accountSizeData?.balance);
       ACCOUNT.accountBalance = Number.isFinite(balanceField) && balanceField > 0 ? balanceField : null;
@@ -221,15 +244,24 @@
       ACCOUNT.dailyOpenRatio = Number.isFinite(dailyOpen) && dailyOpen > 0 ? dailyOpen : null;
       ACCOUNT.eodHwmRatio = Number.isFinite(eodHwm) && eodHwm > 0 ? eodHwm : null;
       ACCOUNT.validatorEquity = ACCOUNT.accountBalance;
-      ACCOUNT.challengeCurrent = (currentEquity - 1) * 100;
+      // Realized return on starting capital (balance = account_size +
+      // realized_pnl − fees), not the mark-to-market current_equity. Both
+      // challenge and funded report realized return.
+      const acctSize = parseFloat(result.account_size) || 0;
+      ACCOUNT.challengeCurrent = (ACCOUNT.accountBalance != null && acctSize > 0)
+        ? (ACCOUNT.accountBalance / acctSize - 1) * 100
+        : 0;
       ACCOUNT.drawdownCurrent = parseFloat(dd.intraday_drawdown_pct) || 0;
-      ACCOUNT.drawdownMax = parseFloat(dd.intraday_threshold_pct) || ACCOUNT.drawdownMax;
       ACCOUNT.daily_loss_pct = parseFloat(dd.intraday_drawdown_pct) || 0;
       ACCOUNT.eod_trailing_loss_pct = parseFloat(dd.eod_drawdown_pct) || 0;
       ACCOUNT.intraday_usage_pct = parseFloat(dd.intraday_usage_pct) || 0;
       ACCOUNT.eod_usage_pct = parseFloat(dd.eod_usage_pct) || 0;
-      ACCOUNT.intraday_threshold_pct = parseFloat(dd.intraday_threshold_pct) || ACCOUNT.intraday_threshold_pct;
-      ACCOUNT.eod_threshold_pct = parseFloat(dd.eod_threshold_pct) || ACCOUNT.eod_threshold_pct;
+      // Thresholds come from the validator only — never fall back to a number.
+      // Missing/zero → null so the UI shows "--" instead of a wrong limit.
+      const intradayThr = parseFloat(dd.intraday_threshold_pct);
+      const eodThr = parseFloat(dd.eod_threshold_pct);
+      ACCOUNT.intraday_threshold_pct = Number.isFinite(intradayThr) && intradayThr > 0 ? intradayThr : null;
+      ACCOUNT.eod_threshold_pct = Number.isFinite(eodThr) && eodThr > 0 ? eodThr : null;
 
       // Exposure (notionalByPair, signedNotionalByPair, openTotalUsed,
       // openSingleUsed) is populated only by checkBalance() from HL's
@@ -241,8 +273,8 @@
       // fetchValidatorData (strict size × price = sum of signed `q` ×
       // current HL mid price). Same form for both content and popup
       // consumers; no local derivation here.
-      ACCOUNT.hfPositionsByCoin = (result.hfPositionsByCoin && typeof result.hfPositionsByCoin === 'object')
-        ? result.hfPositionsByCoin : {};
+      ACCOUNT.hsPositionsByCoin = (result.hsPositionsByCoin && typeof result.hsPositionsByCoin === 'object')
+        ? result.hsPositionsByCoin : {};
 
       HF.state.validatorDataLoaded = true;
       HF.banner.updateBannerFromValidator();
@@ -344,6 +376,9 @@
       fetchValidatorData();
       fetchTraderLimits();
       fetchMidPrices();
+      // Retry until the first successful trade-pairs load; without it every
+      // cap falls back to the deprecated class-level figure for the session
+      if (!Object.keys(HF.state.hlCoinToDisplay).length) fetchTradePairs();
     }, HF.state.BALANCE_CHECK_INTERVAL);
   }
 
@@ -372,13 +407,20 @@
       ACCOUNT.eod_trailing_loss_pct = 0;
       ACCOUNT.intraday_usage_pct = 0;
       ACCOUNT.eod_usage_pct = 0;
+      ACCOUNT.intraday_threshold_pct = null;
+      ACCOUNT.eod_threshold_pct = null;
       ACCOUNT.openSingleUsed = 0;
       ACCOUNT.openTotalUsed = 0;
       ACCOUNT.exposureSource = "none";
       ACCOUNT.notionalByPair = {};
       ACCOUNT.signedNotionalByPair = {};
       ACCOUNT.totalUnrealizedPnl = null;
-      ACCOUNT.hfPositionsByCoin = {};
+      ACCOUNT.hsPositionsByCoin = {};
+      ACCOUNT.tier = null;
+      ACCOUNT.maxByAssetClass = {};
+      ACCOUNT.maxPositionPerPair = 0;
+      ACCOUNT.maxPortfolio = 0;
+      HF.state.limitsLoaded = false;
       ACCOUNT.inChallenge = false;
       ACCOUNT.isRegistered = false;
       ACCOUNT.registrationChecked = false;
