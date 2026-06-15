@@ -178,7 +178,7 @@ describe('transformTraderResponse — open position aggregation', () => {
     expect(openPositions).toHaveLength(0);
   });
 
-  it('hfPositionsByCoin is empty when all positions are closed', () => {
+  it('hsPositionsByCoin is empty when all positions are closed', () => {
     // Post-refactor (Diff #4/#5): HF position values come from
     // deriveHsPositionsByCoin (size × price), never `nl × account_size`.
     // With no open positions, the map is empty.

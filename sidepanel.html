@@ -114,7 +114,7 @@
             <div class="eliminated-status-card">
                 <div class="eliminated-icon">✕</div>
                 <div class="eliminated-title">Account Eliminated</div>
-                <div class="eliminated-body">This challenge account has been eliminated. Your drawdown limit was breached and the account is no longer active.</div>
+                <div class="eliminated-body">This account has been eliminated. Your drawdown limit was breached and the account is no longer active.</div>
             </div>
             <div class="eliminated-action-card">
                 <a href="https://hyperstack.trade/dashboard" target="_blank" class="eliminated-new-btn">Start a new challenge →</a>
@@ -129,7 +129,7 @@
         <div class="balance-grid">
             <div class="balance-card">
                 <div class="balance-label">HS Account <button class="info-toggle" aria-expanded="false" data-info="fundedAccount"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4M8 5.5v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></div>
-                <div class="info-expand" id="info-fundedAccount" hidden>Your HS account balance as tracked by the Vanta Network validator. This is your starting capital plus realized P&L (from closed trades) minus fees — unrealized P&L from open positions is shown separately below. This balance determines your challenge progress, leverage limits, and drawdown calculations.</div>
+                <div class="info-expand" id="info-fundedAccount" hidden>Your HS account balance as tracked by the Vanta Network validator. This is your starting capital plus realized P&L (from closed trades) minus fees — unrealized P&L from open positions is shown separately below. This balance is the basis for measuring your realized return, and for your leverage limits and drawdown calculations.</div>
                 <div class="balance-value"><span id="fundedBalance">--</span></div>
                 <div class="balance-change positive"><span id="fundedChange">--</span></div>
             </div>
@@ -144,7 +144,7 @@
         <!-- Section 2: Challenge Progress -->
         <div class="section">
             <div class="section-header">
-                <div class="section-title">Challenge Progress <button class="info-toggle" aria-expanded="false" data-info="challengeProgress"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4M8 5.5v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></div>
+                <div class="section-title"><span id="challengeSectionTitle">Challenge Progress</span> <button class="info-toggle" aria-expanded="false" data-info="challengeProgress"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4M8 5.5v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></div>
                 <div class="section-value challenge"><span id="challengeValue">--</span></div>
             </div>
             <div class="info-expand" id="info-challengeProgress" hidden>Shows how close you are to hitting your profit target. You need to reach a 10% return on your challenge account starting capital to pass the challenge. The bar fills as your return approaches the target. Once it reaches 100%, you've passed and move to a funded account.</div>
@@ -159,7 +159,7 @@
             <div class="section-header">
                 <div class="section-title">Current Drawdown <button class="info-toggle" aria-expanded="false" data-info="currentDrawdown"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4M8 5.5v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></div>
             </div>
-            <div class="info-expand" id="info-currentDrawdown" hidden>This section tracks both your intraday and end-of-day (EOD) trailing drawdown against their limits. If either one exceeds its threshold, your challenge is breached. Each is shown as a separate bar with its own usage level — amber means caution, red means danger. Keep both as low as possible.</div>
+            <div class="info-expand" id="info-currentDrawdown" hidden>This section tracks both your intraday and end-of-day (EOD) trailing drawdown against their limits. If either one exceeds its threshold, your account is breached. Each is shown as a separate bar with its own usage level — amber means caution, red means danger. Keep both as low as possible.</div>
             <div class="drawdown-row">
                 <div class="drawdown-row-header">
                     <span class="drawdown-row-label">Intraday</span>
@@ -181,44 +181,38 @@
             <div class="progress-label"><span id="drawdownLabel">--</span></div>
         </div>
 
-        <!-- Section 4: Leverage & Buying Power (HF-side limits; HL is uncapped) -->
+        <!-- Section 4: Leverage & Buying Power (HS-side limits; HL is uncapped) -->
         <div class="capacity-block capacity-block--hs">
             <div class="capacity-header">
                 <span class="capacity-title">Leverage &amp; Buying Power <button class="info-toggle" aria-expanded="false" data-info="tradingCapacity"><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5"/><path d="M8 7v4M8 5.5v.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></span>
             </div>
-            <div class="info-expand" id="info-tradingCapacity" hidden>Validator-enforced leverage limits on your HS account. Per-pair and portfolio limits are fixed leverage ratios applied to your live HS balance. Trading on Hyperliquid itself is never restricted by these limits — any portion of a fill that would exceed them simply isn't mirrored to your HS account.
-                <span class="info-expand-item"><strong>Per Pair Limit</strong> — Maximum notional you can hold in any single pair on your HS account. Calculated as the validator's per-pair leverage ratio &times; your live HS balance.</span>
+            <div class="info-expand" id="info-tradingCapacity" hidden>Validator-enforced leverage limits on your HS account. Per-pair, asset-class and portfolio limits are fixed leverage ratios applied to your live HS balance. Trading on Hyperliquid itself is never restricted by these limits — any portion of a fill that would exceed them simply isn't mirrored to your HS account.
+                <span class="info-expand-item"><strong>Per Pair Limit</strong> — Maximum notional in any single pair. Each pair has its own leverage ratio (&times; your live HS balance), so the cap differs pair to pair — the active pair's limit is shown in the order-entry preview on Hyperliquid.</span>
+                <span class="info-expand-item"><strong>Asset Class Limit</strong> — Maximum combined notional across all pairs in one asset class (crypto, equities, indices, commodities). Calculated as the validator's per-class leverage ratio &times; your live HS balance.</span>
                 <span class="info-expand-item"><strong>Portfolio Limit</strong> — Maximum aggregate notional across all open positions on your HS account. Calculated as the validator's portfolio leverage ratio &times; your live HS balance.</span>
             </div>
             <div class="capacity-basis-note">
-                Scaling ratio: HS balance <span id="hfBasisValue">--</span> &divide; HL equity <span id="hfBasisHlEquity">--</span> = <span id="hfBasisRatio">--</span>
+                Scaling ratio: HS balance <span id="hsBasisValue">--</span> &divide; HL equity <span id="hsBasisHlEquity">--</span> = <span id="hsBasisRatio">--</span>
             </div>
 
-            <!-- Per-asset row -->
-            <div class="capacity-row">
+            <!-- Asset class sub-caps — hidden until /limits provides max_asset_class_usd -->
+            <div class="capacity-row" id="hsClassRow" style="display: none;">
                 <div class="capacity-row-header">
-                    <span class="capacity-row-label">Per Pair Limit</span>
+                    <span class="capacity-row-label">Asset Class Limits</span>
                 </div>
-                <div class="capacity-asset-list" id="hfPerPairSubBars"></div>
-                <div class="capacity-footer">
-                    <span class="capacity-used" id="hfPerPairBreakdown">No open positions</span>
-                    <span class="capacity-remaining"><span id="hfPerPairRemaining">--</span> left</span>
-                </div>
+                <div class="capacity-asset-list" id="hsClassSubBars"></div>
             </div>
 
             <!-- Total available size row -->
             <div class="capacity-row">
                 <div class="capacity-row-header">
                     <span class="capacity-row-label">Portfolio Limit</span>
-                    <span class="capacity-row-value"><span id="hfCapacityUsed">--</span> / <span id="hfCapacityMax">--</span></span>
+                    <span class="capacity-row-value"><span id="hsCapacityUsed">--</span> / <span id="hsCapacityMax">--</span></span>
                 </div>
                 <div class="capacity-bar">
-                    <div class="capacity-fill capacity-fill--total" id="hfCapacityFill" style="width: 0%;"></div>
+                    <div class="capacity-fill capacity-fill--total" id="hsCapacityFill" style="width: 0%;"></div>
                 </div>
-                <div class="capacity-footer">
-                    <span class="capacity-used">All positions</span>
-                    <span class="capacity-remaining"><span id="hfCapacityRemaining">--</span> left</span>
-                </div>
+                <div class="capacity-basis-note" id="hsPortfolioNote" style="display: none; margin-top: var(--space-1);">The portfolio limit is the overall ceiling and sits below the sum of your asset-class limits — you can't fill every class to its own cap at once.</div>
             </div>
         </div>
 

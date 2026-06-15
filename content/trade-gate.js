@@ -366,7 +366,7 @@
   }
 
   function checkAndBlockButtons() {
-    // HL orders are no longer blocked when they exceed the HF cap — the
+    // HL orders are no longer blocked when they exceed the HS cap — the
     // mirror-preview card surfaces the over-cap state as a warning and the
     // user can still confirm. Real blocks remain for unsupported pairs and
     // explicit `forceBlockTrade` calls (e.g., drawdown breach handling, if

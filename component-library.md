@@ -56,15 +56,12 @@ A single block showing the validator-enforced leverage limits on the funded HS a
     <div class="capacity-basis-note">
         Scaling ratio: HS balance <span id="hfBasisValue">$1,002.26</span> &divide; HL equity <span id="hfBasisHlEquity">$47.99</span> = <span id="hfBasisRatio">20.9x</span>
     </div>
-    <div class="capacity-row">
+    <!-- Hidden until /limits provides max_asset_class_usd; one sub-bar per class, zero-usage included -->
+    <div class="capacity-row" id="hsClassRow" style="display: none;">
         <div class="capacity-row-header">
-            <span class="capacity-row-label">Per Pair Limit</span>
+            <span class="capacity-row-label">Asset Class Limits</span>
         </div>
-        <div class="capacity-asset-list" id="hfPerPairSubBars"><!-- one sub-bar per open asset --></div>
-        <div class="capacity-footer">
-            <span class="capacity-used" id="hfPerPairBreakdown">No open positions</span>
-            <span class="capacity-remaining"><span id="hfPerPairRemaining">--</span> left</span>
-        </div>
+        <div class="capacity-asset-list" id="hsClassSubBars"></div>
     </div>
     <div class="capacity-row">
         <div class="capacity-row-header">
@@ -74,10 +71,7 @@ A single block showing the validator-enforced leverage limits on the funded HS a
         <div class="capacity-bar">
             <div class="capacity-fill capacity-fill--total" id="hfCapacityFill" style="width: 15%;"></div>
         </div>
-        <div class="capacity-footer">
-            <span class="capacity-used">All positions</span>
-            <span class="capacity-remaining"><span id="hfCapacityRemaining">$1,701.79</span> left</span>
-        </div>
+        <div class="capacity-basis-note" id="hsPortfolioNote" style="margin-top: var(--space-1);">The portfolio limit is the overall ceiling and sits below the sum of your asset-class limits — you can't fill every class to its own cap at once.</div>
     </div>
 </div>
 ```
@@ -109,17 +103,20 @@ A single block showing the validator-enforced leverage limits on the funded HS a
 ### Rules
 
 - Bars use the DD severity scale (teal/amber/red) — same `capColor()` thresholds as the banner DD bars and the injected mirror preview, so proximity-to-cap reads consistently across surfaces. JS sets the fill `background` inline based on severity.
-- Two rows: "Per Pair Limit" and "Portfolio Limit".
+- Two rows: "Asset Class Limits" and "Portfolio Limit". The popup carries no per-pair row — per-pair caps differ pair to pair (`subaccount_positional_leverage_by_tier[tier]` via `/trade-pairs` + the `tier` field on `/limits`), so a single per-pair figure would misreport; the per-pair bar lives in the injected mirror preview where a concrete pair is in context. Per-pair caps still clamp the popup's per-class/portfolio projections internally.
+- The class row stays hidden (`display: none`) until `/limits` returns `max_asset_class_usd`, then renders one sub-bar for every capped class — zero-usage classes included — labeled with the uppercase class name (e.g. `COMMODITIES`), sorted by projected usage.
+- The injected mirror preview card shows three bars (pair / class / portfolio) with a uniform 8px gap between sections and no divider lines; its class bar is hidden when no class cap applies.
+- The class breakdown only lists classes with at least one tradeable pair (forex is omitted while no HL forex pairs exist).
+- Caps and filled exposure render whenever the live HS balance is known; only pending projections additionally require the HS÷HL scaling ratio (HL equity > 0). With a zero HL wallet the section still shows caps and filled values rather than "--".
 - The basis note shows the scaling ratio as a formula (`HS balance ÷ HL equity = ratio`) so the trader can verify the conversion against their own readings.
 - "HL trading is unrestricted" replaces the earlier "no HL-side cap" — same meaning, framed positively (what the trader can do, not what's missing).
-- Filled exposure comes from `hfPositionsByCoin` (validator's authoritative size × price). Pending overlay comes from HL resting-orders × mirror ratio (validator only records pending at fill time, so HL clearinghouse is the source).
-- Pending is projected against signed current exposure using the mirror-preview branch logic (`add | reduce | flip | new`). A buy pending against a short is **reduce** or **flip**, not additive. Each pair's after-magnitude is then clamped by `pair_cap` and shared `portfolio_room`. The total row aggregates per-pair after-magnitudes — never the raw sum of pending notional.
+- Filled exposure comes from `hsPositionsByCoin` (validator's authoritative size × price). Pending overlay comes from HL resting-orders × mirror ratio (validator only records pending at fill time, so HL clearinghouse is the source).
+- Pending is projected against signed current exposure using the mirror-preview branch logic (`add | reduce | flip | new`). A buy pending against a short is **reduce** or **flip**, not additive. Each pair's after-magnitude is then clamped by `pair_cap` and the shared `min(portfolio_room, class_room)` budget. The total row aggregates per-pair after-magnitudes — never the raw sum of pending notional.
+- Both the per-class and total rows clamp their aggregated after-magnitude to the row's own cap before display. Per-pair projections each claim the full shared room independently, so the raw sum across same-class (or all) pairs can exceed the cap; the validator caps the row at fill time, so the excess never mirrors. The bar simply fills to `$cap / $cap` — the popup shows no unreachable over-cap figure and no `(capped)` tag (the full bar conveys it).
 - Bar segments per branch: add/new = solid current + overlay growth (severity stripe); reduce = solid after + overlay closing tail (teal stripe matching mirror preview); flip = solid jumps to after on new side, no overlay.
-- The `± $X pending` text shows the net magnitude delta (sign indicates direction). Insert it *between* filled and `/ cap` so the row reads as a math expression: `$filled + $pending pending / $cap`. Sign and value are space-separated (`+ $171.94`). Same format applies to per-pair and portfolio rows. Append `(capped)` when `pair_cap` or `portfolio_room` binds the projection.
-- Per-asset row labels show the full Vanta pair name with `/USDC` suffix (e.g. `BTC/USDC`, `ETH/USDC`) so the trader can tell mirrored pairs apart from any unmirrored holdings (`BTC/USDT` etc.) on HL.
-- When open positions exist, render one sub-bar per asset in the "Per Pair Limit" row; each sub-bar scales against per-pair max capacity and is sorted descending by notional.
-- Per Pair Limit header is label-only (no right value). Each asset sub-row right value is `$used / $max` for that same per-pair cap.
-- The asset list uses a single CSS grid (`display: grid` on `.capacity-asset-list`, `display: contents` on each `.capacity-asset-row`). Symbol / track / value share columns across all rows so every bar's track is the same width — otherwise the row with longer pending text would have a narrower bar, and a smaller yellow segment could visually appear shorter than a larger green segment, breaking severity-by-length comparison.
+- The `± $X pending` text shows the net magnitude delta (sign indicates direction). Insert it *between* filled and `/ cap` so the row reads as a math expression: `$filled + $pending pending / $cap`. Sign and value are space-separated (`+ $171.94`). Same format applies to per-class and portfolio rows. The popup does not append a `(capped)` tag — that cue lives only in the mirror preview's order-entry detail line.
+- The Portfolio Limit row carries a faint note (`#hsPortfolioNote`, reusing `.capacity-basis-note`), shown only on multi-class accounts (when the Asset Class row is visible): the portfolio cap is the overall ceiling and sits below the sum of the class caps, so the trader can't fill every class to its own cap at once. There is no `(capped)`-style sum figure — the prose alone carries it.
+- The class sub-bar list uses a single CSS grid (`display: grid` on `.capacity-asset-list`, `display: contents` on each `.capacity-asset-row`). Symbol / track / value share columns across all rows so every bar's track is the same width — otherwise the row with longer pending text would have a narrower bar, and a smaller yellow segment could visually appear shorter than a larger green segment, breaking severity-by-length comparison.
 - Bar fill width and background are set inline via `style="width: XX%; background: ..."` calculated from JS.
 
 ### Oversized state modifiers
@@ -184,12 +181,14 @@ The toast is built dynamically in `content/toast.js` (`showOversizeToast()`). Re
 
 A self-contained section displaying a tracked metric with a title and optional right-hand header value, one or more progress bars, and a sublabel. Challenge Progress uses a title/value header; Current Drawdown is title-only in the header (details live in Intraday / EOD Trailing rows).
 
+The header value is **realized return** (`balance / account_size − 1`, where `balance = account_size + realized PnL − fees`) — not the mark-to-market equity return. The section title text lives in `<span id="challengeSectionTitle">` so JS can swap it per account state (see Funded variant). Missing balance/size → `--`, never a wrong number.
+
 ### HTML structure
 
 ```html
 <div class="section">
   <div class="section-header">
-    <div class="section-title">Challenge Progress</div>
+    <div class="section-title"><span id="challengeSectionTitle">Challenge Progress</span></div>
     <div class="section-value challenge">6.45% / 10%</div>
   </div>
   <div class="progress-bar">
@@ -244,6 +243,8 @@ A self-contained section displaying a tracked metric with a title and optional r
 | Row value color | `--amber` |
 | Bar background | `rgba(251, 191, 36, 0.1)` (amber tint) |
 | Fill gradient | `linear-gradient(90deg, #fbbf24, #f59e0b)` |
+
+**Funded variant** — funded accounts have no profit target, so the Challenge Progress section becomes a plain readout: the title swaps to "Realized Return", the header value shows realized return alone (e.g. `12.50%`, no `/ target`), and the progress bar and goal sublabel are hidden (`display: none`). Challenge accounts keep the title/value/bar/label as above, with progress measured against the fixed 10% target. The same realized-return basis drives both. (The banner mirrors this: its `TARGET` stat is rendered only for challenge accounts.)
 
 ---
 

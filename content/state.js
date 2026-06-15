@@ -18,19 +18,20 @@
     challengeTarget: 10,
     challengeCurrent: 0,
     drawdownCurrent: 0,
-    drawdownMax: 5,
     daily_loss_pct: 0,
     eod_trailing_loss_pct: 0,
     intraday_usage_pct: 0,
     eod_usage_pct: 0,
-    intraday_threshold_pct: 5,
-    eod_threshold_pct: 5,
+    intraday_threshold_pct: null,  // from validator; null → display "--", never a fallback
+    eod_threshold_pct: null,
     validatorEquity: 0,
     openSingleUsed: 0,
     openTotalUsed: 0,
     exposureSource: "none",
     maxPositionPerPair: 0,
     maxPortfolio: 0,
+    tier: null,             // leverage tier 1-4 from /limits; null if unavailable
+    maxByAssetClass: {},    // per-class caps in HS USD, scaled to live balance
     notionalByPair: {},
     filledNotionalByPair: {},
     pendingNotionalByPair: {},
@@ -42,7 +43,7 @@
     // downstream displays "--" rather than fabricating a value from the
     // validator's `net_leverage × account_size`.
     totalUnrealizedPnl: null,
-    // HF-side actual position values, derived strictly as size × price:
+    // HS-side actual position values, derived strictly as size × price:
     //   size  = sum of signed `q` (quantity) across the position's filled orders
     //   price = current HL mid price for the coin
     // Map: { COIN_UPPER: { quantity, value, side } }
@@ -51,7 +52,7 @@
     //   side:     'long' | 'short'
     // Populated by fetchValidatorData when both validator positions and
     // midPrices are available. Empty until then.
-    hfPositionsByCoin: {},
+    hsPositionsByCoin: {},
     inChallenge: false,
     isRegistered: false,
     registrationChecked: false,
@@ -64,6 +65,8 @@
     midPrices: {},
     SUPPORTED_SYMBOLS: ["BTC", "ETH", "SOL", "XRP", "DOGE", "ADA"],
     hlCoinToDisplay: {},
+    pairCategory: {},       // display symbol (e.g. "GOLD") → asset class, from /trade-pairs
+    pairTierLeverage: {},   // display symbol → { tier: leverage multiplier }
     validatorDataLoaded: false,
     limitsLoaded: false,
     pairsLoaded: false,

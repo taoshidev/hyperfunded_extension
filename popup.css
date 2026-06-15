@@ -997,26 +997,6 @@ body {
     font-variant-numeric: tabular-nums;
 }
 
-.capacity-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: var(--space-2);
-}
-
-.capacity-used {
-    font-size: 12px;
-    font-family: var(--font-ui);
-    color: var(--text-faint);
-    white-space: nowrap;
-}
-
-.capacity-remaining {
-    font-size: 12px;
-    font-family: var(--font-ui);
-    color: var(--text-faint);
-}
-
 /* ── Sections ───────────────────────────────────────── */
 .section {
     margin-bottom: var(--space-5);

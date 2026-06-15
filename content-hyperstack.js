@@ -8,7 +8,9 @@
 
   // Inject marker element so the page can detect the extension
   const marker = document.createElement("div");
+
   marker.id = "hyperstack-ext";
+
   marker.dataset.version = VERSION;
   marker.style.display = "none";
   (document.documentElement || document.body).appendChild(marker);
@@ -33,7 +35,7 @@
       } catch {}
       // Dispatch event for live React listeners
       document.dispatchEvent(
-        new CustomEvent("HYPERFUNDED_PAYMENT_STATUS", {
+        new CustomEvent("HYPERSCALED_PAYMENT_STATUS", {
           detail: {
             status: result.success ? "registered" : "registration_error",
             txHash: result.txHash || "",
@@ -56,16 +58,16 @@
     if (event.source !== window) return;
     if (!event.data || typeof event.data.type !== "string") return;
 
-    if (event.data.type === "HYPERFUNDED_PING") {
+    if (event.data.type === "HYPERSCALED_PING") {
       document.dispatchEvent(
-        new CustomEvent("HYPERFUNDED_PONG", {
+        new CustomEvent("HYPERSCALED_PONG", {
           detail: { version: VERSION },
         })
       );
       return;
     }
 
-    if (event.data.type === "HYPERFUNDED_INIT_PAYMENT") {
+    if (event.data.type === "HYPERSCALED_INIT_PAYMENT") {
       const data = event.data.data;
       if (!data) return;
 
@@ -74,7 +76,7 @@
         (response) => {
           if (chrome.runtime.lastError) {
             document.dispatchEvent(
-              new CustomEvent("HYPERFUNDED_PAYMENT_STATUS", {
+              new CustomEvent("HYPERSCALED_PAYMENT_STATUS", {
                 detail: {
                   status: "error",
                   error: chrome.runtime.lastError.message,
@@ -85,7 +87,7 @@
           }
           if (!response?.success) {
             document.dispatchEvent(
-              new CustomEvent("HYPERFUNDED_PAYMENT_STATUS", {
+              new CustomEvent("HYPERSCALED_PAYMENT_STATUS", {
                 detail: {
                   status: "error",
                   error: response?.error || "Failed to initiate payment",
@@ -104,7 +106,7 @@
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === "hlPaymentUpdate") {
       document.dispatchEvent(
-        new CustomEvent("HYPERFUNDED_PAYMENT_STATUS", {
+        new CustomEvent("HYPERSCALED_PAYMENT_STATUS", {
           detail: {
             status: request.status,
             ...(request.data || {}),
