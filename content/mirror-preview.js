@@ -1,7 +1,7 @@
 // Mirror preview card — shows order size, mirrored amount, and capacity impact
 (() => {
-  const HS = window.__HS;
-  const { ACCOUNT } = HS.state;
+  const HF = window.__HF;
+  const { ACCOUNT } = HF.state;
 
   let previewEl = null;
   let hideTimer = null;
@@ -100,7 +100,7 @@
   // Live mirror multiplier — HS = HL × (accountBalance / hlBalance).
   // Tracks current PnL because both sides are live equity figures.
   function getMirrorRatio() {
-    return HS.utils.getMirrorMultiplier();
+    return HF.utils.getMirrorMultiplier();
   }
 
   // Severity color matches the banner's ddColor() — teal/amber/red by proximity
@@ -129,10 +129,10 @@
   // trader can distinguish from any unmirrored USDT pair they might also
   // hold. URL-form symbols (e.g. "XYZ:WTIOIL" from HL routes) and HL API
   // names (e.g. "XYZ:CL") map back to the validator's friendly name (e.g.
-  // "WTIOIL") via HS.state.hlCoinToDisplay. Native pairs pass through.
+  // "WTIOIL") via HF.state.hlCoinToDisplay. Native pairs pass through.
   function formatPairLabel(coin) {
     if (!coin) return '';
-    const display = (HS.state && HS.state.hlCoinToDisplay) || {};
+    const display = (HF.state && HF.state.hlCoinToDisplay) || {};
     const upper = String(coin).toUpperCase();
     const friendly = display[upper] || display[coin] || coin;
     return `${friendly}/USDC`;
@@ -145,7 +145,7 @@
       hlBalance: ACCOUNT.hlBalance,
       fundedSize: ACCOUNT.fundedSize,
       inputValue: input.value,
-      isLikelySizeInput: HS.utils.isLikelySizeInput(input),
+      isLikelySizeInput: HF.utils.isLikelySizeInput(input),
     });
 
     if (!ACCOUNT.isRegistered) {
@@ -153,12 +153,12 @@
       return;
     }
 
-    if (HS.state._unsupportedPairBlocked) {
+    if (HF.state._unsupportedPairBlocked) {
       hideMirrorPreview();
       return;
     }
 
-    const v = HS.utils.parseNumber(input.value);
+    const v = HF.utils.parseNumber(input.value);
     if (v <= 0) {
       hideMirrorPreview();
       return;
@@ -173,12 +173,12 @@
     //     HL's DOM "Order Value" because it uses the limit price for limit
     //     orders, where mid-price would be wrong.
     let notional;
-    const sizeUnit = HS.utils.getSizeUnit();
+    const sizeUnit = HF.utils.getSizeUnit();
     if (sizeUnit === 'USD' || sizeUnit === 'USDC') {
       notional = v;
     } else {
-      notional = HS.utils.readOrderValueFromDOM();
-      if (notional <= 0) notional = HS.utils.inputToNotional(v);
+      notional = HF.utils.readOrderValueFromDOM();
+      if (notional <= 0) notional = HF.utils.inputToNotional(v);
     }
     if (notional <= 0) {
       console.log('[Hyperstack][MirrorPreview] Skipped: notional <= 0');
@@ -192,13 +192,13 @@
     // pending order to HS via mirrorMultiplier; caps already come in HS USD
     // from effectiveMax*Usd.
     const ratio = getMirrorRatio();
-    const hfOrder = ratio > 0 ? notional * ratio : 0;
+    const hsOrder = ratio > 0 ? notional * ratio : 0;
     const { fmt, getCurrentSymbol, effectiveMaxSingleUsd, effectiveMaxTotalUsd,
-            effectiveMaxClassUsd, classExposureUsd, assetClassOf, getActiveOrderSide } = HS.utils;
+            effectiveMaxClassUsd, classExposureUsd, assetClassOf, getActiveOrderSide } = HF.utils;
 
     const symbol = getCurrentSymbol();
     const side = getActiveOrderSide(input);
-    const resolvedSymbol = HS.utils.resolveExposureSymbol(symbol);
+    const resolvedSymbol = HF.utils.resolveExposureSymbol(symbol);
 
     const pairMax  = effectiveMaxSingleUsd(resolvedSymbol);
     const maxTotal = effectiveMaxTotalUsd();
@@ -234,10 +234,10 @@
     // ── Source-of-truth current HS values ─────────────────────────────────
     // Strict size × price from validator (sum of signed `q` × current mid
     // price). Never derived from net_leverage or HL_pair × ratio.
-    const hfPairs = ACCOUNT.hsPositionsByCoin || {};
-    const hfPairEntry = (resolvedSymbol && hfPairs[resolvedSymbol]) || null;
-    const currentHsPair = hfPairEntry ? Math.abs(Number(hfPairEntry.value) || 0) : 0;
-    const hfTotalNow = Object.values(hfPairs).reduce((s, e) => s + Math.abs(Number(e?.value) || 0), 0);
+    const hsPairs = ACCOUNT.hsPositionsByCoin || {};
+    const hsPairEntry = (resolvedSymbol && hsPairs[resolvedSymbol]) || null;
+    const currentHsPair = hsPairEntry ? Math.abs(Number(hsPairEntry.value) || 0) : 0;
+    const hsTotalNow = Object.values(hsPairs).reduce((s, e) => s + Math.abs(Number(e?.value) || 0), 0);
 
     // ── Per-branch HS impact ──────────────────────────────────────────────
     // Caps are deterministic (validator clamps at fill time). For PREDICTING
@@ -263,7 +263,7 @@
         proposed = Math.max(0, proposed - (classAfter - classMax));
         classCapBinds = true;
       }
-      const portAfter = hfTotalNow + proposed;
+      const portAfter = hsTotalNow + proposed;
       if (maxTotal > 0 && portAfter > maxTotal + 0.01) {
         proposed = Math.max(0, proposed - (portAfter - maxTotal));
         portCapBinds = true;
@@ -293,7 +293,7 @@
         proposed = Math.max(0, proposed - (classAfter - classMax));
         classCapBinds = true;
       }
-      const portAfter = hfTotalNow - currentHsPair + proposed;
+      const portAfter = hsTotalNow - currentHsPair + proposed;
       if (maxTotal > 0 && portAfter > maxTotal + 0.01) {
         proposed = Math.max(0, proposed - (portAfter - maxTotal));
         portCapBinds = true;
@@ -303,11 +303,11 @@
       mirrorsTo = currentHsPair + proposed;
     }
 
-    const hfTotalAfter = (branch === 'flip')
-      ? Math.max(0, hfTotalNow - currentHsPair + afterHsPair)
+    const hsTotalAfter = (branch === 'flip')
+      ? Math.max(0, hsTotalNow - currentHsPair + afterHsPair)
       : (branch === 'reduce')
-      ? Math.max(0, hfTotalNow - mirrorsTo)
-      : (hfTotalNow + mirrorsTo);
+      ? Math.max(0, hsTotalNow - mirrorsTo)
+      : (hsTotalNow + mirrorsTo);
 
     const el = ensurePreviewEl(input);
 
@@ -323,9 +323,9 @@
     const mirrorRow = el.querySelector('#hf-mp-mirror-row');
     if (ratio > 0) {
       if (mirrorRow) mirrorRow.style.display = '';
-      const hfVal = el.querySelector('#hf-mp-hs-val');
+      const hsVal = el.querySelector('#hf-mp-hs-val');
       const ratioEl = el.querySelector('#hf-mp-ratio');
-      if (hfVal) hfVal.textContent = fmt(hfOrder);
+      if (hsVal) hsVal.textContent = fmt(hsOrder);
       if (ratioEl) ratioEl.textContent = '(' + ratio.toFixed(2) + 'x)';
     } else {
       if (mirrorRow) mirrorRow.style.display = 'none';
@@ -524,8 +524,8 @@
     }
 
     // ── Portfolio capacity bar (same logic, against maxTotal) ─────────────
-    const portCurrentPct = maxTotal > 0 ? Math.min(hfTotalNow   / maxTotal * 100, 100) : 0;
-    const portAfterPct   = maxTotal > 0 ? Math.min(hfTotalAfter / maxTotal * 100, 100) : 0;
+    const portCurrentPct = maxTotal > 0 ? Math.min(hsTotalNow   / maxTotal * 100, 100) : 0;
+    const portAfterPct   = maxTotal > 0 ? Math.min(hsTotalAfter / maxTotal * 100, 100) : 0;
 
     const capPctEl = el.querySelector('#hf-mp-cap-pct');
     const barCurrent = el.querySelector('#hf-mp-bar-current');
@@ -573,8 +573,8 @@
     }
 
     if (capDetail) {
-      const cur = fmt(hfTotalNow);
-      const aft = fmt(hfTotalAfter);
+      const cur = fmt(hsTotalNow);
+      const aft = fmt(hsTotalAfter);
       const capStr = maxTotal > 0 ? ' / ' + fmt(maxTotal) : '';
       const cappedTag = portCapBinds ? ' (capped)' : '';
       let text;
@@ -591,7 +591,7 @@
     // Cache notional for getPendingNotional() — banner / toast still consume it.
     // Cap-based blocking is gone: HL orders pass through, the warning above is
     // the only feedback path before confirm.
-    HS.state.pendingNotional = notional;
+    HF.state.pendingNotional = notional;
 
     if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
     void el.offsetWidth;
@@ -601,7 +601,7 @@
   function hideMirrorPreview() {
     if (!previewEl) return;
     previewEl.classList.remove('hf-mirror-show');
-    HS.state.pendingNotional = 0;
+    HF.state.pendingNotional = 0;
   }
 
   function onSizeInputChange(input) {
@@ -611,7 +611,7 @@
 
   function onSizeInputBlur(input) {
     // Only hide if the input is empty or zero
-    const v = input instanceof HTMLInputElement ? HS.utils.parseNumber(input.value) : 0;
+    const v = input instanceof HTMLInputElement ? HF.utils.parseNumber(input.value) : 0;
     if (v <= 0) {
       hideMirrorPreview();
     }
@@ -619,11 +619,11 @@
 
   function refreshIfVisible() {
     if (!previewEl || !previewEl.classList.contains('hf-mirror-show')) return;
-    const input = HS.state.lastEditedInput;
-    if (input && HS.utils.isLikelySizeInput(input)) showMirrorPreview(input);
+    const input = HF.state.lastEditedInput;
+    if (input && HF.utils.isLikelySizeInput(input)) showMirrorPreview(input);
   }
 
-  HS.mirrorPreview = {
+  HF.mirrorPreview = {
     showMirrorPreview,
     hideMirrorPreview,
     onSizeInputChange,

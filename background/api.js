@@ -138,7 +138,7 @@ async function getFriendlyToHlCoin() {
   }
 }
 
-// Derive per-coin HF position values strictly as size × price:
+// Derive per-coin HS position values strictly as size × price:
 //   size  = sum of signed `q` (quantity) across the position's filled
 //           orders (Vanta emits q on every Order.to_dashboard when set;
 //           falls back to v/pr with sign by order_type when q is absent
@@ -291,7 +291,7 @@ export async function fetchValidatorData(address) {
   const cacheKey = `cache_validator_${normalizedAddress}`;
 
   // Fetch validator dashboard + HL mid prices in parallel. Mid prices are
-  // needed to derive HF position values as size × price. A failed mid
+  // needed to derive HS position values as size × price. A failed mid
   // prices call is non-fatal — hsPositionsByCoin will be empty for that
   // refresh and downstream UI shows "--" rather than fabricated values.
   const [valRes, midsRes] = await Promise.all([
@@ -354,7 +354,7 @@ function extractExposureFromAssetPositions(perpsData) {
     // True position value = size × current price. HL pre-computes this as
     // `positionValue`; we fall back to `size × markPx` when it's missing.
     // Never derive notional from `net_leverage × account_size` — that mixes
-    // an HF-side ratio with a frozen funded amount and only approximates
+    // an HS-side ratio with a frozen funded amount and only approximates
     // truth when current equity == account_size and HL/validator are in sync.
     const directNotional =
       parseFloat(pos?.positionValue ?? pos?.notionalValue ?? pos?.usdValue ?? pos?.value ?? row?.positionValue);

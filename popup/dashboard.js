@@ -30,7 +30,7 @@ const REDUCE_STRIPE_POPUP =
     'rgba(0, 198, 167, 0.15) 2px, rgba(0, 198, 167, 0.15) 4px)';
 
 // Project one pair's after-fill state, given current SIGNED exposure (long > 0,
-// short < 0) and (buy-only) pending notional, both in HF units. Mirrors the
+// short < 0) and (buy-only) pending notional, both in HS units. Mirrors the
 // branch logic in content/mirror-preview.js: add / reduce / flip / new.
 //
 // Pending feeds in as a positive scalar because background's
@@ -108,9 +108,9 @@ export function applyValidatorData(result, state) {
     const upnlField = parseFloat(state.totalUnrealizedPnl);
     const totalUnrealizedPnl = Number.isFinite(upnlField) ? upnlField : null;
 
-    // HF per-coin position values come pre-computed from background as
+    // HS per-coin position values come pre-computed from background as
     // strict size × price (sum of signed `q` × current HL mid price).
-    // Used below for the HF row (actual capped values), not HL × ratio.
+    // Used below for the HS row (actual capped values), not HL × ratio.
     state.hsPositionsByCoin = (result.hsPositionsByCoin && typeof result.hsPositionsByCoin === 'object')
       ? result.hsPositionsByCoin : {};
 
@@ -259,16 +259,16 @@ export function applyValidatorData(result, state) {
             `EOD trailing ${trailingBufferText} (${trailingBufferPct == null ? '--' : trailingBufferPct.toFixed(2) + '%'}) buffer`;
     }
 
-    // ── Mirror ratio (used by HF capacity block) ───────────────────────────────
+    // ── Mirror ratio (used by HS capacity block) ───────────────────────────────
     // Numerator is live HS balance (drawdown-adjusted), not starting size, so
     // the ratio reflects the trader's current equity rather than what they
     // originally funded. Falls to 0 when accountBalance is unavailable —
-    // downstream HF-column UI shows "--" via the existing `r > 0` checks.
+    // downstream HS-column UI shows "--" via the existing `r > 0` checks.
     const hlBal = Number(state.hlBalance) || 0;
     const mirrorRatio = (hlBal > 0 && accountBalance != null) ? accountBalance / hlBal : 0;
 
     // HL pending orders are still needed: validator records pending only at
-    // fill time, so projecting "what would HF look like if all HL pending
+    // fill time, so projecting "what would HS look like if all HL pending
     // fills" requires the HL resting-order notional × ratio.
     const pendingByPairHl = state.pendingNotionalByPair || {};
     const pendingTotalHl  = Number(state.pendingTotal) || 0;
@@ -276,12 +276,12 @@ export function applyValidatorData(result, state) {
     // The "HL" capacity block was removed — HL has no caps post-faca41c, and
     // a bar with no real cap was misleading. Anything HL-related the trader
     // needs is on HL's own UI (or the injected mirror preview at order entry).
-    // The HF section below is the only capacity surface that maps to a real
+    // The HS section below is the only capacity surface that maps to a real
     // validator-enforced limit.
 
     // ── Trading Capacity (Hyperstack) — validator-enforced caps ────────────
     // Every $ figure in this section depends on mirrorRatio. When it is 0
-    // (accountBalance unavailable) we cannot compute honest HF values, so
+    // (accountBalance unavailable) we cannot compute honest HS values, so
     // render "--" rather than a misleading $0.00.
     const r = mirrorRatio;
     const hsAvailable = r > 0;
@@ -319,30 +319,30 @@ export function applyValidatorData(result, state) {
     // resting orders × ratio (since HL pending hasn't filled, validator has
     // no record of it yet). Union the keysets so a coin that's open on the
     // validator but momentarily missing on the HL pending list still shows.
-    const hfPositionsMap = state.hsPositionsByCoin || {};
-    const hfPerAssetSyms = new Set([
-        ...Object.keys(hfPositionsMap),
+    const hsPositionsMap = state.hsPositionsByCoin || {};
+    const hsPerAssetSyms = new Set([
+        ...Object.keys(hsPositionsMap),
         ...Object.keys(pendingByPairHl),
     ]);
-    const hfPerAssetEntries = Array.from(hfPerAssetSyms)
+    const hsPerAssetEntries = Array.from(hsPerAssetSyms)
         .map((sym) => {
-            const pos = hfPositionsMap[sym];
+            const pos = hsPositionsMap[sym];
             const mag = Math.abs(Number(pos?.value) || 0);
             const qty = Number(pos?.quantity) || 0;
             const sideSign = qty >= 0 ? 1 : -1;
             return {
                 sym: String(sym).toUpperCase(),
-                hfFilled: mag,
-                hfSignedFilled: sideSign * mag,
-                hfPending: hfAvailable ? (Number(pendingByPairHl[sym]) || 0) * r : 0,
+                hsFilled: mag,
+                hsSignedFilled: sideSign * mag,
+                hsPending: hsAvailable ? (Number(pendingByPairHl[sym]) || 0) * r : 0,
             };
         })
-        .filter(({ hfFilled, hfPending }) => hfFilled + hfPending > 0)
-        .sort((a, b) => (b.hfFilled + b.hfPending) - (a.hfFilled + a.hfPending));
+        .filter(({ hsFilled, hsPending }) => hsFilled + hsPending > 0)
+        .sort((a, b) => (b.hsFilled + b.hsPending) - (a.hsFilled + a.hsPending));
 
     const hsFilledTotal = Object.values(hsPositionsMap).reduce(
         (s, e) => s + Math.abs(Number(e?.value) || 0), 0);
-    const hfPendingTotal = hfAvailable ? pendingTotalHl * r : 0;
+    const hsPendingTotal = hsAvailable ? pendingTotalHl * r : 0;
 
     const hsBasisRatioEl = document.getElementById('hsBasisRatio');
     const hsBasisValueEl = document.getElementById('hsBasisValue');
@@ -483,7 +483,7 @@ export function applyValidatorData(result, state) {
                 const sign = totalDelta >= 0 ? '+' : '−';
                 pendingMid = ` <span class="capacity-asset-pending" style="color:${pendingTextColor}">${sign} ${fmtUsd(Math.abs(totalDelta))} pending</span>`;
             }
-            hfCapacityUsedEl.innerHTML = `${fmtUsd(hfFilledTotal)}${pendingMid}`;
+            hsCapacityUsedEl.innerHTML = `${fmtUsd(hsFilledTotal)}${pendingMid}`;
         }
     }
     if (hsCapacityMaxEl) hsCapacityMaxEl.textContent = capsAvailable ? fmtUsd(hsMaxTotal) : '--';
@@ -498,13 +498,13 @@ export function applyValidatorData(result, state) {
             if (!pendingEl) {
                 pendingEl = document.createElement('div');
                 pendingEl.className = 'capacity-fill capacity-fill--pending';
-                hfCapacityFillEl.parentElement.appendChild(pendingEl);
+                hsCapacityFillEl.parentElement.appendChild(pendingEl);
             }
             pendingEl.style.width = totalOverlayPct + '%';
             pendingEl.style.left = totalSolidPct + '%';
             pendingEl.style.background = totalIsReduce
                 ? REDUCE_STRIPE_POPUP
-                : pendingStripeBg(hfTotalOver ? 100 : totalAfterPct);
+                : pendingStripeBg(hsTotalOver ? 100 : totalAfterPct);
         }
     }
 

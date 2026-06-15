@@ -43,7 +43,7 @@
     // downstream displays "--" rather than fabricating a value from the
     // validator's `net_leverage × account_size`.
     totalUnrealizedPnl: null,
-    // HF-side actual position values, derived strictly as size × price:
+    // HS-side actual position values, derived strictly as size × price:
     //   size  = sum of signed `q` (quantity) across the position's filled orders
     //   price = current HL mid price for the coin
     // Map: { COIN_UPPER: { quantity, value, side } }

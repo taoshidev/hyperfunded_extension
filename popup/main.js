@@ -26,7 +26,7 @@ const state = {
     // returns — display "--" rather than fabricate from validator's
     // `net_leverage × account_size`.
     totalUnrealizedPnl: null,
-    // HF per-coin position values, pre-computed by background as strict
+    // HS per-coin position values, pre-computed by background as strict
     // size × price (sum of signed `q` × current HL mid price). Map:
     // { COIN_UPPER: { quantity, value, side } }. Empty until validator +
     // mid prices return.
