@@ -30,7 +30,7 @@ const state = {
     // size × price (sum of signed `q` × current HL mid price). Map:
     // { COIN_UPPER: { quantity, value, side } }. Empty until validator +
     // mid prices return.
-    hfPositionsByCoin: {},
+    hsPositionsByCoin: {},
     refreshIntervalId: null,
     dashboardShown: false,
 };
@@ -234,7 +234,7 @@ function disconnectWallet() {
     state.openSingleUsed = 0;
     state.notionalByPair = {};
     state.totalUnrealizedPnl = null;
-    state.hfPositionsByCoin = {};
+    state.hsPositionsByCoin = {};
     if (state.refreshIntervalId) {
         clearInterval(state.refreshIntervalId);
         state.refreshIntervalId = null;

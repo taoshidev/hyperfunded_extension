@@ -1,7 +1,7 @@
 // Mirror preview card — shows order size, mirrored amount, and capacity impact
 (() => {
-  const HF = window.__HF;
-  const { ACCOUNT } = HF.state;
+  const HS = window.__HS;
+  const { ACCOUNT } = HS.state;
 
   let previewEl = null;
   let hideTimer = null;
@@ -97,10 +97,10 @@
     return previewEl;
   }
 
-  // Live mirror multiplier — HF = HL × (accountBalance / hlBalance).
+  // Live mirror multiplier — HS = HL × (accountBalance / hlBalance).
   // Tracks current PnL because both sides are live equity figures.
   function getMirrorRatio() {
-    return HF.utils.getMirrorMultiplier();
+    return HS.utils.getMirrorMultiplier();
   }
 
   // Severity color matches the banner's ddColor() — teal/amber/red by proximity
@@ -129,10 +129,10 @@
   // trader can distinguish from any unmirrored USDT pair they might also
   // hold. URL-form symbols (e.g. "XYZ:WTIOIL" from HL routes) and HL API
   // names (e.g. "XYZ:CL") map back to the validator's friendly name (e.g.
-  // "WTIOIL") via HF.state.hlCoinToDisplay. Native pairs pass through.
+  // "WTIOIL") via HS.state.hlCoinToDisplay. Native pairs pass through.
   function formatPairLabel(coin) {
     if (!coin) return '';
-    const display = (HF.state && HF.state.hlCoinToDisplay) || {};
+    const display = (HS.state && HS.state.hlCoinToDisplay) || {};
     const upper = String(coin).toUpperCase();
     const friendly = display[upper] || display[coin] || coin;
     return `${friendly}/USDC`;
@@ -145,7 +145,7 @@
       hlBalance: ACCOUNT.hlBalance,
       fundedSize: ACCOUNT.fundedSize,
       inputValue: input.value,
-      isLikelySizeInput: HF.utils.isLikelySizeInput(input),
+      isLikelySizeInput: HS.utils.isLikelySizeInput(input),
     });
 
     if (!ACCOUNT.isRegistered) {
@@ -153,12 +153,12 @@
       return;
     }
 
-    if (HF.state._unsupportedPairBlocked) {
+    if (HS.state._unsupportedPairBlocked) {
       hideMirrorPreview();
       return;
     }
 
-    const v = HF.utils.parseNumber(input.value);
+    const v = HS.utils.parseNumber(input.value);
     if (v <= 0) {
       hideMirrorPreview();
       return;
@@ -173,12 +173,12 @@
     //     HL's DOM "Order Value" because it uses the limit price for limit
     //     orders, where mid-price would be wrong.
     let notional;
-    const sizeUnit = HF.utils.getSizeUnit();
+    const sizeUnit = HS.utils.getSizeUnit();
     if (sizeUnit === 'USD' || sizeUnit === 'USDC') {
       notional = v;
     } else {
-      notional = HF.utils.readOrderValueFromDOM();
-      if (notional <= 0) notional = HF.utils.inputToNotional(v);
+      notional = HS.utils.readOrderValueFromDOM();
+      if (notional <= 0) notional = HS.utils.inputToNotional(v);
     }
     if (notional <= 0) {
       console.log('[Hyperstack][MirrorPreview] Skipped: notional <= 0');
@@ -188,17 +188,17 @@
 
     console.log('[Hyperstack][MirrorPreview] Showing card', { notional, ratio: getMirrorRatio() });
 
-    // Caps and exposures are compared in HF units. Convert HL exposure /
-    // pending order to HF via mirrorMultiplier; caps already come in HF USD
+    // Caps and exposures are compared in HS units. Convert HL exposure /
+    // pending order to HS via mirrorMultiplier; caps already come in HS USD
     // from effectiveMax*Usd.
     const ratio = getMirrorRatio();
     const hfOrder = ratio > 0 ? notional * ratio : 0;
     const { fmt, getCurrentSymbol, effectiveMaxSingleUsd, effectiveMaxTotalUsd,
-            effectiveMaxClassUsd, classExposureUsd, assetClassOf, getActiveOrderSide } = HF.utils;
+            effectiveMaxClassUsd, classExposureUsd, assetClassOf, getActiveOrderSide } = HS.utils;
 
     const symbol = getCurrentSymbol();
     const side = getActiveOrderSide(input);
-    const resolvedSymbol = HF.utils.resolveExposureSymbol(symbol);
+    const resolvedSymbol = HS.utils.resolveExposureSymbol(symbol);
 
     const pairMax  = effectiveMaxSingleUsd(resolvedSymbol);
     const maxTotal = effectiveMaxTotalUsd();
@@ -231,7 +231,7 @@
       branch = 'flip';
     }
 
-    // ── Source-of-truth current HF values ─────────────────────────────────
+    // ── Source-of-truth current HS values ─────────────────────────────────
     // Strict size × price from validator (sum of signed `q` × current mid
     // price). Never derived from net_leverage or HL_pair × ratio.
     const hfPairs = ACCOUNT.hsPositionsByCoin || {};
@@ -239,10 +239,10 @@
     const currentHsPair = hfPairEntry ? Math.abs(Number(hfPairEntry.value) || 0) : 0;
     const hfTotalNow = Object.values(hfPairs).reduce((s, e) => s + Math.abs(Number(e?.value) || 0), 0);
 
-    // ── Per-branch HF impact ──────────────────────────────────────────────
+    // ── Per-branch HS impact ──────────────────────────────────────────────
     // Caps are deterministic (validator clamps at fill time). For PREDICTING
-    // the after-fill HF state we project: target = HL_after × ratio, then
-    // clamp by pair cap and portfolio cap. Mirrors_to is the net HF movement.
+    // the after-fill HS state we project: target = HL_after × ratio, then
+    // clamp by pair cap and portfolio cap. Mirrors_to is the net HS movement.
     let afterHsPair = currentHsPair;
     let mirrorsTo = 0;
     let pairCapBinds = false;
@@ -273,7 +273,7 @@
     } else if (branch === 'reduce') {
       const targetHsAfter = hlAfterAbs * ratio;
       if (pairMax > 0 && targetHsAfter >= pairMax - 0.01) {
-        // HL after-position still over implied cap → HF doesn't follow.
+        // HL after-position still over implied cap → HS doesn't follow.
         afterHsPair = currentHsPair;
         mirrorsTo = 0;
         stillOver = true;
@@ -299,7 +299,7 @@
         portCapBinds = true;
       }
       afterHsPair = proposed;
-      // Net HF movement: close existing + open new.
+      // Net HS movement: close existing + open new.
       mirrorsTo = currentHsPair + proposed;
     }
 
@@ -395,7 +395,7 @@
     }
 
     // ── Per-pair capacity bar ─────────────────────────────────────────────
-    // Bar length always represents |after| / pairMax (HF actual after fill,
+    // Bar length always represents |after| / pairMax (HS actual after fill,
     // capped). Color from capColor(after%). Side label in the title; flips
     // get an arrow. Detail line shows transition $-amounts.
     const pairTitle = el.querySelector('#hf-mp-pair-title');
@@ -591,7 +591,7 @@
     // Cache notional for getPendingNotional() — banner / toast still consume it.
     // Cap-based blocking is gone: HL orders pass through, the warning above is
     // the only feedback path before confirm.
-    HF.state.pendingNotional = notional;
+    HS.state.pendingNotional = notional;
 
     if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
     void el.offsetWidth;
@@ -601,7 +601,7 @@
   function hideMirrorPreview() {
     if (!previewEl) return;
     previewEl.classList.remove('hf-mirror-show');
-    HF.state.pendingNotional = 0;
+    HS.state.pendingNotional = 0;
   }
 
   function onSizeInputChange(input) {
@@ -611,7 +611,7 @@
 
   function onSizeInputBlur(input) {
     // Only hide if the input is empty or zero
-    const v = input instanceof HTMLInputElement ? HF.utils.parseNumber(input.value) : 0;
+    const v = input instanceof HTMLInputElement ? HS.utils.parseNumber(input.value) : 0;
     if (v <= 0) {
       hideMirrorPreview();
     }
@@ -619,11 +619,11 @@
 
   function refreshIfVisible() {
     if (!previewEl || !previewEl.classList.contains('hf-mirror-show')) return;
-    const input = HF.state.lastEditedInput;
-    if (input && HF.utils.isLikelySizeInput(input)) showMirrorPreview(input);
+    const input = HS.state.lastEditedInput;
+    if (input && HS.utils.isLikelySizeInput(input)) showMirrorPreview(input);
   }
 
-  HF.mirrorPreview = {
+  HS.mirrorPreview = {
     showMirrorPreview,
     hideMirrorPreview,
     onSizeInputChange,

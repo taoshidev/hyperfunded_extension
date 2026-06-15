@@ -1,7 +1,7 @@
 // Toast notification system for order clamping/blocking
 (() => {
-  const HF = window.__HF;
-  const { ACCOUNT } = HF.state;
+  const HS = window.__HS;
+  const { ACCOUNT } = HS.state;
 
   let activeClampToast = null;
   let activeInfoToast = null;
@@ -55,7 +55,7 @@
   }
 
   function showClampToast(details) {
-    const { fmt, effectiveMaxSingleUsd, formatSizeForToast, getSizeUnit, getCurrentSymbol, marginLimitBasisUsd, getActiveOrderSide } = HF.utils;
+    const { fmt, effectiveMaxSingleUsd, formatSizeForToast, getSizeUnit, getCurrentSymbol, marginLimitBasisUsd, getActiveOrderSide } = HS.utils;
     const requested = Number(details?.requestedNotional) || 0;
     const allowed = Number(details?.allowedNotional) || 0;
     const constraint = details?.constraint || "portfolio";
@@ -66,7 +66,7 @@
     const symbol = getCurrentSymbol();
     const symbolLabel = symbol || "this asset";
     const perPairLimitUsd = effectiveMaxSingleUsd();
-    const resolvedSymbol = HF.utils.resolveExposureSymbol(symbol);
+    const resolvedSymbol = HS.utils.resolveExposureSymbol(symbol);
     const usedPerPairUsd = (resolvedSymbol && ACCOUNT.notionalByPair[resolvedSymbol]) || 0;
     const remainingPerPairUsd = Math.max(perPairLimitUsd - usedPerPairUsd, 0);
     const leverageBasisUsd = marginLimitBasisUsd();
@@ -285,7 +285,7 @@
         if (bypassBtn) {
           e.preventDefault();
           e.stopPropagation();
-          HF.tradeGate?.bypassDepositBlockAndRetry?.();
+          HS.tradeGate?.bypassDepositBlockAndRetry?.();
           dismissInfoToast();
           return;
         }
@@ -397,7 +397,7 @@
   function showLimitBlockToast() {
     if (activeLimitBlockToast && activeLimitBlockToast.parentNode) return;
 
-    const { fmt, effectiveMaxSingleUsd, effectiveMaxTotalUsd, effectiveMaxClassUsd, classExposureUsd, getCurrentSymbol, resolveExposureSymbol } = HF.utils;
+    const { fmt, effectiveMaxSingleUsd, effectiveMaxTotalUsd, effectiveMaxClassUsd, classExposureUsd, getCurrentSymbol, resolveExposureSymbol } = HS.utils;
     const symbol = getCurrentSymbol();
     const pairMax = effectiveMaxSingleUsd(symbol);
     const totalMax = effectiveMaxTotalUsd();
@@ -440,15 +440,15 @@
   // resolves — call evaluateOversizeState() after every ACCOUNT update.
   function computeOverCapInfo() {
     // Trigger semantics: toast fires when HL exposure × ratio exceeds the
-    // HF cap (i.e. validator clamped HF to cap). This distinguishes
+    // HS cap (i.e. validator clamped HS to cap). This distinguishes
     // "intentionally at-cap" (HL fits exactly) from "validator-clamped due
     // to HL excess" — only the latter warrants a warning.
     //
-    // Display values: actual capped HF values from the validator (size ×
+    // Display values: actual capped HS values from the validator (size ×
     // current price, sourced from ACCOUNT.hsPositionsByCoin). The HL
     // projection (HL × ratio, the "would-be" if uncapped) is shown in
     // expanded details so traders can see how much HL needs to reduce.
-    const { fmt, effectiveMaxSingleUsd, effectiveMaxTotalUsd, getMirrorMultiplier, assetClassOf } = HF.utils;
+    const { fmt, effectiveMaxSingleUsd, effectiveMaxTotalUsd, getMirrorMultiplier, assetClassOf } = HS.utils;
     const totalMax = effectiveMaxTotalUsd();
     const mirror = getMirrorMultiplier();
 
@@ -523,7 +523,7 @@
     const { fmt, overAssets, overClasses, totalMax, totalOver, hlTotalTarget } = info;
 
     // Compact one-line summary: worst pair, else worst class, else portfolio.
-    // "HF at cap $X" reports the actual capped state; "(HL +$Y)" surfaces
+    // "HS at cap $X" reports the actual capped state; "(HL +$Y)" surfaces
     // the magnitude of the HL excess so traders know how much to reduce.
     let summary;
     if (overAssets.length > 0) {
@@ -531,7 +531,7 @@
       const extra = overAssets.length > 1 ? ' +' + (overAssets.length - 1) : '';
       const excess = Math.max(0, w.hlTarget - w.pairMax);
       const excessSuffix = excess > 0.01 ? ' (HL +' + fmt(excess) + ')' : '';
-      summary = w.sym + ' HF at cap ' + fmt(w.pairMax) + excessSuffix + extra;
+      summary = w.sym + ' HS at cap ' + fmt(w.pairMax) + excessSuffix + extra;
     } else if (overClasses.length > 0) {
       const w = overClasses[0];
       const excess = Math.max(0, w.hlTarget - w.cap);
@@ -540,14 +540,14 @@
     } else {
       const excess = Math.max(0, hlTotalTarget - totalMax);
       const excessSuffix = excess > 0.01 ? ' (HL +' + fmt(excess) + ')' : '';
-      summary = 'Portfolio HF at cap ' + fmt(totalMax) + excessSuffix;
+      summary = 'Portfolio HS at cap ' + fmt(totalMax) + excessSuffix;
     }
 
     const detailsHtml = buildOversizeDetailsHtml(info);
 
     const innerHtml =
       '<span class="hf-toast-icon" aria-hidden="true">⚠</span>' +
-      '<span class="hf-toast-summary">Over HF limit · ' + summary + '</span>' +
+      '<span class="hf-toast-summary">Over HS limit · ' + summary + '</span>' +
       '<button type="button" class="hf-toast-expand" aria-expanded="false" title="Details">▾</button>' +
       '<button type="button" class="hf-toast-close" title="Dismiss" aria-label="Dismiss">×</button>' +
       '<div class="hf-toast-details" hidden>' + detailsHtml + '</div>';
@@ -611,10 +611,10 @@
   }
 
   function evaluateOversizeState() {
-    if (!HF.state.limitsLoaded) return;
-    if (!(HF.utils.getMirrorMultiplier() > 0)) return;
+    if (!HS.state.limitsLoaded) return;
+    if (!(HS.utils.getMirrorMultiplier() > 0)) return;
     // Trigger by HL exposure × ratio against caps (filled-only) — when it
-    // exceeds a cap the validator has clamped actual HF to that cap.
+    // exceeds a cap the validator has clamped actual HS to that cap.
     const { overAssets, overClasses, totalOver } = computeOverCapInfo();
     if (overAssets.length > 0 || overClasses.length > 0 || totalOver) {
       if (oversizeDismissed && !activeOversizeToast) return;
@@ -625,7 +625,7 @@
     }
   }
 
-  HF.toast = {
+  HS.toast = {
     showClampToast,
     showDepositScalingToast,
     showUnsupportedPairToast,

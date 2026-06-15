@@ -455,7 +455,7 @@ A single block showing the validator-enforced leverage limits on the funded HS a
 
 **Rule:** Two rows: **Per Pair Limit** (validator's per-pair cap) and **Portfolio Limit** (validator's portfolio cap). Both are HF-scale.
 
-**Rule:** Bars consume `hfPositionsByCoin` (validator's authoritative size × price) for filled exposure and HL's resting-order notional × mirror ratio for the pending overlay. The validator records pending only at fill time, so projected pending must come from HL clearinghouse.
+**Rule:** Bars consume `hsPositionsByCoin` (validator's authoritative size × price) for filled exposure and HL's resting-order notional × mirror ratio for the pending overlay. The validator records pending only at fill time, so projected pending must come from HL clearinghouse.
 
 **Rule:** Pending is projected against current SIGNED exposure using the same `add | reduce | flip | new` branch logic as the injected mirror preview (`content/mirror-preview.js`). Background's `extractPendingBuyNotional` only emits buy-side resting orders, so a buy pending against a short position must be treated as **reduce** (or **flip** if larger), never as additive exposure. Per-pair after-magnitude is `|currentSigned + pendingBuy|`, then clamped by `pair_cap`, `class_room`, and `portfolio_room`. The per-class and total rows aggregate per-pair after-magnitudes (each clamped at its own cap) — never the raw sum of pending notional.
 

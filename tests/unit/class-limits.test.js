@@ -46,7 +46,7 @@ function classExposureUsd(state, symbol) {
   const cls = state.pairCategory?.[symbol] || null;
   if (!cls) return 0;
   let sum = 0;
-  for (const [coin, pos] of Object.entries(state.hfPositionsByCoin || {})) {
+  for (const [coin, pos] of Object.entries(state.hsPositionsByCoin || {})) {
     if (state.pairCategory?.[coin] === cls) sum += Math.abs(Number(pos?.value) || 0);
   }
   return sum;
@@ -168,7 +168,7 @@ describe('effectiveMaxClassUsd / classExposureUsd', () => {
   const state = {
     pairCategory: PAIR_CATEGORY,
     maxByAssetClass: { commodities: 206000, crypto: 206000 },
-    hfPositionsByCoin: {
+    hsPositionsByCoin: {
       GOLD:   { value: 60000 },
       SILVER: { value: -30000 },
       BTC:    { value: 40000 },

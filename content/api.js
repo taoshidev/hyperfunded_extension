@@ -273,8 +273,8 @@
       // fetchValidatorData (strict size × price = sum of signed `q` ×
       // current HL mid price). Same form for both content and popup
       // consumers; no local derivation here.
-      ACCOUNT.hfPositionsByCoin = (result.hfPositionsByCoin && typeof result.hfPositionsByCoin === 'object')
-        ? result.hfPositionsByCoin : {};
+      ACCOUNT.hsPositionsByCoin = (result.hsPositionsByCoin && typeof result.hsPositionsByCoin === 'object')
+        ? result.hsPositionsByCoin : {};
 
       HF.state.validatorDataLoaded = true;
       HF.banner.updateBannerFromValidator();
@@ -415,7 +415,7 @@
       ACCOUNT.notionalByPair = {};
       ACCOUNT.signedNotionalByPair = {};
       ACCOUNT.totalUnrealizedPnl = null;
-      ACCOUNT.hfPositionsByCoin = {};
+      ACCOUNT.hsPositionsByCoin = {};
       ACCOUNT.tier = null;
       ACCOUNT.maxByAssetClass = {};
       ACCOUNT.maxPositionPerPair = 0;

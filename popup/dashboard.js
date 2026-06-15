@@ -111,8 +111,8 @@ export function applyValidatorData(result, state) {
     // HF per-coin position values come pre-computed from background as
     // strict size × price (sum of signed `q` × current HL mid price).
     // Used below for the HF row (actual capped values), not HL × ratio.
-    state.hfPositionsByCoin = (result.hfPositionsByCoin && typeof result.hfPositionsByCoin === 'object')
-      ? result.hfPositionsByCoin : {};
+    state.hsPositionsByCoin = (result.hsPositionsByCoin && typeof result.hsPositionsByCoin === 'object')
+      ? result.hsPositionsByCoin : {};
 
     const cp = result.challenge_period || {};
     const dd = result.drawdown || {};
@@ -319,7 +319,7 @@ export function applyValidatorData(result, state) {
     // resting orders × ratio (since HL pending hasn't filled, validator has
     // no record of it yet). Union the keysets so a coin that's open on the
     // validator but momentarily missing on the HL pending list still shows.
-    const hfPositionsMap = state.hfPositionsByCoin || {};
+    const hfPositionsMap = state.hsPositionsByCoin || {};
     const hfPerAssetSyms = new Set([
         ...Object.keys(hfPositionsMap),
         ...Object.keys(pendingByPairHl),
