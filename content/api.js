@@ -415,7 +415,7 @@
       ACCOUNT.notionalByPair = {};
       ACCOUNT.signedNotionalByPair = {};
       ACCOUNT.totalUnrealizedPnl = null;
-      ACCOUNT.hsPositionsByCoin = {};
+      ACCOUNT.hfPositionsByCoin = {};
       ACCOUNT.tier = null;
       ACCOUNT.maxByAssetClass = {};
       ACCOUNT.maxPositionPerPair = 0;

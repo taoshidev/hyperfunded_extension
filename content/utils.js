@@ -95,7 +95,7 @@
     const cls = assetClassOf(symbol);
     if (!cls) return 0;
     let sum = 0;
-    for (const [coin, pos] of Object.entries(ACCOUNT.hsPositionsByCoin || {})) {
+    for (const [coin, pos] of Object.entries(ACCOUNT.hfPositionsByCoin || {})) {
       if (HF.state.pairCategory?.[coin] === cls) {
         sum += Math.abs(Number(pos?.value) || 0);
       }

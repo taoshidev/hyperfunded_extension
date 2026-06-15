@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Hyperstack",
-  "version": "1.0.13",
+  "version": "1.0.15",
   "description": "Track your Hyperstack account and Hyperliquid positions",
   "action": {
     "default_icon": {

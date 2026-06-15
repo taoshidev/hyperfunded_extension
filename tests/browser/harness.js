@@ -586,7 +586,7 @@
 
     HF.state.pairCategory = { GOLD: 'commodities', SILVER: 'commodities', BTC: 'crypto' };
     ACCOUNT.maxByAssetClass = { commodities: 206000, crypto: 206000 };
-    ACCOUNT.hsPositionsByCoin = {
+    ACCOUNT.hfPositionsByCoin = {
       GOLD:   { value: 60000 },
       SILVER: { value: -30000 },
       BTC:    { value: 40000 },
